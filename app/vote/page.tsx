@@ -48,8 +48,8 @@ export default function VotingPage() {
   const [isVotingOpen, setIsVotingOpen] = useState(false);
 
   // Define login and voting countdown periods
-  const loginEndTime = useMemo(() => Date.now() + 1 * 60 * 60 * 1000, []);
-  const votingEndTime = useMemo(() => Date.now() + 1 * 60 * 60 * 1000, []);
+  const loginEndTime = useMemo(() => Date.now() + 5 * 7 * 60 * 1000, []);
+  const votingEndTime = useMemo(() => Date.now() + 5 * 7 * 60 * 1000, []);
 
   // Countdown hooks
   const loginTimeLeft = useCountdown(loginEndTime);
