@@ -1,6 +1,6 @@
 "use client";
-
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 
 export default function HomePage() {
   const [formData, setFormData] = useState({
@@ -11,8 +11,8 @@ export default function HomePage() {
   });
 
   // Voting start and end times (replace with actual times)
-  const votingStartTime = new Date("2024-11-17T06:00:00");
-  const votingEndTime = new Date("2024-11-17T12:00:00");
+  const votingStartTime = useMemo(() => new Date("2024-11-17T06:00:00"), []);
+  const votingEndTime = useMemo(() => new Date("2024-11-17T12:00:00"), []);
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState("");
@@ -48,7 +48,7 @@ export default function HomePage() {
     };
 
     updateCountdown();
-  }, [currentTime]);
+  }, [currentTime, votingStartTime, votingEndTime]);
 
   // Format time difference into hours, minutes, and seconds
   const formatTime = (ms: number) => {
@@ -109,7 +109,7 @@ export default function HomePage() {
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
         Faculty of Physical Sciences Election Voting
       </h1>
-      <img src="/physical.png" alt="" />
+      <Image src="/physical.png" alt="" width={400} height={200} />
       <div className="mt-4">
         {isVotingPeriod ? (
           <p className="text-center mt-4 flex items-center justify-center space-x-2">
@@ -184,13 +184,15 @@ export default function HomePage() {
               />
             </svg>
             {formData.image ? (
-              <img
+              <Image
                 src={formData.image}
                 alt="Selected file preview"
                 className="mt-2 h-24 w-24 object-cover rounded"
               />
             ) : (
-              <span className="text-gray-600">Upload ID Card or Course Form</span>
+              <span className="text-gray-600">
+                Upload ID Card or Course Form
+              </span>
             )}
           </label>
           <input
@@ -199,12 +201,15 @@ export default function HomePage() {
             name="image"
             accept="image/*"
             className="hidden"
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                image: URL.createObjectURL(e.target.files?.[0]!),
-              })
-            }
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) {
+                setFormData({
+                  ...formData,
+                  image: URL.createObjectURL(file),
+                });
+              }
+            }}
           />
         </div>
 
