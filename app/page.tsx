@@ -11,8 +11,8 @@ export default function HomePage() {
   });
 
   // Voting start and end times (replace with actual times)
-  const votingStartTime = new Date("2024-11-16T08:00:00");
-  const votingEndTime = new Date("2024-11-17T23:50:00");
+  const votingStartTime = new Date("2024-11-17T05:00:00");
+  const votingEndTime = new Date("2024-11-17T12:00:00");
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState("");
