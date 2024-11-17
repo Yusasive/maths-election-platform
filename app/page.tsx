@@ -109,7 +109,7 @@ export default function HomePage() {
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
         Faculty of Physical Sciences Election Voting
       </h1>
-      <Image src="/physical.png" alt="" width={400} height={200} />
+      <Image src="/physical.png" alt="Physical Sciences" width={60} height={40} />
       <div className="mt-4">
         {isVotingPeriod ? (
           <p className="text-center mt-4 flex items-center justify-center space-x-2">
