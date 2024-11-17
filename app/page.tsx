@@ -12,7 +12,7 @@ export default function HomePage() {
 
   // Voting start and end times (replace with actual times)
   const votingStartTime = useMemo(() => new Date("2024-11-17T06:00:00"), []);
-  const votingEndTime = useMemo(() => new Date("2024-11-17T12:00:00"), []);
+  const votingEndTime = useMemo(() => new Date("2024-11-17T20:00:00"), []);
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState("");

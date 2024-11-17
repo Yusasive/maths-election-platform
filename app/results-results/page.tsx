@@ -33,9 +33,7 @@ export default function ResultsPage() {
           throw new Error("No data available from the server.");
         }
   
-        console.log("Fetched API data:", data); // Debug log
-  
-        // Process the data as you did with mock data
+        console.log("Fetched API data:", data); 
         const processedVotes = data.reduce<ProcessedVotes>((acc, vote) => {
           const position = vote.position || "Unknown Position";
           const userVotes = vote.votes || [];
@@ -54,7 +52,7 @@ export default function ResultsPage() {
           return acc;
         }, {});
   
-        console.log("Processed Votes from API:", processedVotes); // Debug log
+        console.log("Processed Votes from API:", processedVotes);
         setVotes(processedVotes);
       } catch (error) {
         if (error instanceof Error) {
@@ -63,7 +61,7 @@ export default function ResultsPage() {
           console.error("Unknown error occurred:", error);
         }
       } finally {
-        setLoading(false); // Ensure loading state is turned off
+        setLoading(false);
       }
     };
   

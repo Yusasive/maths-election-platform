@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import candidates from "../../data/candidates.json";
 
 interface Candidate {
-  id: number; // Matches the raw data
+  id: number; 
   name: string;
 }
 
@@ -34,7 +34,7 @@ const useCountdown = (endTime: number): number => {
     };
 
     const intervalId = setInterval(tick, 1000);
-    tick(); // Initialize immediately to avoid delay
+    tick(); 
 
     return () => clearInterval(intervalId);
   }, [endTime]);
@@ -47,15 +47,12 @@ export default function VotingPage() {
   const [voterData, setVoterData] = useState<VoterData | null>(null);
   const [isVotingOpen, setIsVotingOpen] = useState(false);
 
-  // Define login and voting countdown periods
   const loginEndTime = useMemo(() => Date.now() + 5 * 7 * 60 * 1000, []);
   const votingEndTime = useMemo(() => Date.now() + 5 * 7 * 60 * 1000, []);
 
-  // Countdown hooks
   const loginTimeLeft = useCountdown(loginEndTime);
   const votingTimeLeft = useCountdown(votingEndTime);
 
-  // Format time utility
   const formatTime = (ms: number): string => {
     if (ms <= 0) return "Time Expired";
 
@@ -90,10 +87,10 @@ export default function VotingPage() {
       if (JSON.stringify(prevData) !== JSON.stringify(storedVoterData)) {
         return storedVoterData;
       }
-      return prevData; // No update needed
+      return prevData;
     });
 
-    // Handle voting window state
+
     const interval = setInterval(() => {
       const now = new Date().getTime();
       setIsVotingOpen(now <= votingEndTime);
@@ -169,7 +166,6 @@ export default function VotingPage() {
 
   return (
     <main className="p-6 bg-gradient-to-r from-gray-100 via-white to-gray-100 min-h-screen">
-      {/* Header Section */}
       <motion.header
         className="text-center"
         initial={{ opacity: 0, y: -20 }}
@@ -183,7 +179,6 @@ export default function VotingPage() {
         </p>
       </motion.header>
 
-      {/* Timing Section */}
       <motion.section
         className="mt-6 bg-white shadow-lg rounded-lg p-6 flex flex-col sm:flex-row items-center justify-between gap-6"
         initial={{ opacity: 0 }}
@@ -242,7 +237,6 @@ export default function VotingPage() {
         )}
       </motion.section>
 
-      {/* Voter Details */}
       {voterData && (
         <motion.div
           className="mt-6 bg-blue-50 shadow-md rounded-lg p-6 text-center"
@@ -264,7 +258,6 @@ export default function VotingPage() {
         </motion.div>
       )}
 
-      {/* Voting Section */}
       <motion.section
         className="mt-8 space-y-6"
         initial={{ opacity: 0 }}
@@ -327,8 +320,6 @@ export default function VotingPage() {
           </motion.div>
         ))}
       </motion.section>
-
-      {/* Submit Button */}
       <motion.div
         className="text-center mt-8"
         initial={{ opacity: 0 }}

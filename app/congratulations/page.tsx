@@ -12,15 +12,13 @@ export default function CongratulationsPage() {
       alert("Unauthorized access! Redirecting to login.");
       window.location.href = "/";
     } else {
-      // Generate an array of balloon colors
       setBalloons(["red", "blue", "green", "yellow", "purple"]);
     }
   }, []);
 
   return (
     <main className="relative flex flex-col items-center justify-center h-screen bg-gradient-to-br from-green-100 via-gray-100 to-blue-100 overflow-hidden">
-      {/* Animated Thank You Message */}
-      <h1 className="text-6xl font-extrabold text-green-700 animate-bounce z-10">
+      <h1 className="text-4xl md:text-6xl font-extrabold text-green-700 animate-bounce z-10">
         🎉 Thank You!
       </h1>
       <p className="text-2xl md:text-3xl text-green-700 font-semibold pt-8 text-center z-10">
@@ -30,8 +28,6 @@ export default function CongratulationsPage() {
         Your participation helps us ensure a fair election.{" "}
         <span className="text-blue-500 font-bold">We appreciate you!</span>
       </p>
-
-      {/* Balloons Animation */}
       <div className="absolute inset-0 pointer-events-none">
         {balloons.map((color, index) => (
           <div
@@ -45,7 +41,6 @@ export default function CongratulationsPage() {
         ))}
       </div>
 
-      {/* Button */}
       <button
         onClick={() => {
           window.location.href = "/";
@@ -54,8 +49,6 @@ export default function CongratulationsPage() {
       >
         Return to Home
       </button>
-
-      {/* Styles for Balloons */}
       <style jsx>{`
         .balloon {
           width: 40px;
