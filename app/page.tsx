@@ -2,6 +2,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 
+const votingStartTimeEnv = process.env.NEXT_PUBLIC_VOTING_START_TIME;
+const votingEndTimeEnv = process.env.NEXT_PUBLIC_VOTING_END_TIME;
+
 export default function HomePage() {
   const [formData, setFormData] = useState({
     matricNumber: "",
@@ -10,33 +13,31 @@ export default function HomePage() {
     image: "",
   });
 
-  // Voting start and end times (replace with actual times)
-  const votingStartTime = useMemo(() => new Date("2024-11-17T06:00:00"), []);
-  const votingEndTime = useMemo(() => new Date("2024-11-17T20:00:00"), []);
+  const votingStartTime = useMemo(() => new Date(votingStartTimeEnv || ""), []);
+  const votingEndTime = useMemo(() => new Date(votingEndTimeEnv || ""), []);
 
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState("");
   const [isVotingPeriod, setIsVotingPeriod] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  // Update the current time every second
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); // Clean up on component unmount
+    return () => clearInterval(interval); 
   }, []);
 
-  // Update the countdown timer and voting period status
   useEffect(() => {
     const updateCountdown = () => {
-      if (currentTime.getTime() < votingStartTime.getTime()) {
+      if (currentTime < votingStartTime) {
         const timeDiff = votingStartTime.getTime() - currentTime.getTime();
         setTimeRemaining(formatTime(timeDiff));
         setIsVotingPeriod(false);
       } else if (
-        currentTime.getTime() >= votingStartTime.getTime() &&
-        currentTime.getTime() <= votingEndTime.getTime()
+        currentTime >= votingStartTime &&
+        currentTime <= votingEndTime
       ) {
         const timeDiff = votingEndTime.getTime() - currentTime.getTime();
         setTimeRemaining(formatTime(timeDiff));
@@ -50,8 +51,7 @@ export default function HomePage() {
     updateCountdown();
   }, [currentTime, votingStartTime, votingEndTime]);
 
-  // Format time difference into hours, minutes, and seconds
-  const formatTime = (ms: number) => {
+  const formatTime = (ms: number): string => {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -67,49 +67,81 @@ export default function HomePage() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const uploadImage = async (file: File): Promise<string> => {
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "your_upload_preset"); 
+    try {
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
+        { method: "POST", body: formData }
+      );
+      const data = await response.json();
+      return data.secure_url;
+    } catch {
+      alert("Image upload failed.");
+      return "";
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleLogin = async () => {
     if (!isVotingPeriod) {
       alert("You can only log in during the voting period.");
       return;
     }
 
-    // Validate input fields
-    if (!formData.matricNumber || !formData.fullName || !formData.department) {
+    if (
+      !formData.matricNumber ||
+      !formData.fullName ||
+      !formData.department ||
+      !formData.image
+    ) {
       alert("All fields are required.");
       return;
     }
 
-    const existingVote = localStorage.getItem("voteRecord");
-    if (existingVote) {
-      alert("You have already voted. Login is restricted.");
-      return;
+    try {
+      const imageUrl = await uploadImage(formData.image as unknown as File);
+      if (!imageUrl) return;
+
+      const response = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matricNumber: formData.matricNumber.toLowerCase(),
+          fullName: formData.fullName,
+          department: formData.department,
+          image: imageUrl,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        alert(result.error || "Failed to log in.");
+        return;
+      }
+
+      localStorage.setItem("voterData", JSON.stringify(formData));
+      window.location.href = "/vote";
+    } catch (error) {
+      alert("An error occurred while logging in.");
     }
-
-    // Save data to localStorage
-    localStorage.setItem("voterData", JSON.stringify(formData));
-
-    // Save data to mock API
-    await fetch("https://65130c258e505cebc2e981a1.mockapi.io/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        matricNumber: formData.matricNumber.toLowerCase(),
-        fullName: formData.fullName,
-        department: formData.department,
-        image: formData.image,
-      }),
-    });
-
-    // Redirect to voting page
-    window.location.href = "/vote";
   };
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
-        Faculty of Physical Sciences Election Voting
+        Department of Mathematics Election Voting
       </h1>
-      <Image src="/physical.png" alt="Physical Sciences" width={60} height={40} />
+      <Image
+        src="/maths.png"
+        alt="Mathematics Department"
+        width={100}
+        height={80}
+      />
       <div className="mt-4">
         {isVotingPeriod ? (
           <p className="text-center mt-4 flex items-center justify-center space-x-2">
@@ -132,9 +164,9 @@ export default function HomePage() {
           </p>
         ) : (
           <p className="text-red-600">
-            {currentTime.getTime() < votingStartTime.getTime()
+            {currentTime < votingStartTime
               ? `Voting has not started yet. Time remaining: `
-              : `Voting has ended.`}
+              : `.`}
             <strong>{timeRemaining}</strong>
           </p>
         )}
@@ -187,7 +219,9 @@ export default function HomePage() {
               <Image
                 src={formData.image}
                 alt="Selected file preview"
-                className="mt-2 h-24 w-24 object-cover rounded"
+                className="object-cover rounded"
+                width={96}
+                height={96}
               />
             ) : (
               <span className="text-gray-600">

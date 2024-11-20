@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Physical Sciences",
-  description: "Election portal for the Faculty of Physical Sciences",
+  title: "Mathematics Department",
+  description: "Election portal for the Department of Mathematics",
 };
 
 export default function RootLayout({
