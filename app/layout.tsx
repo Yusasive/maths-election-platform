@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { NotificationProvider } from "@/context/NotificationContext";
+import Toaster from "@/components/Toaster";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
 
@@ -28,7 +30,10 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {children}
+        <NotificationProvider>
+          {children}
+          <Toaster />
+        </NotificationProvider>
         <Footer />
       </body>
     </html>

@@ -1,17 +1,30 @@
 "use client";
+
 import { useEffect, useMemo, useState } from "react";
+import { useNotification } from "../context/NotificationContext";
 import Image from "next/image";
 
 const votingStartTimeEnv = process.env.NEXT_PUBLIC_VOTING_START_TIME;
 const votingEndTimeEnv = process.env.NEXT_PUBLIC_VOTING_END_TIME;
 
+interface FormData {
+  matricNumber: string;
+  fullName: string;
+  department: string;
+  image: File | string;
+}
+
 export default function HomePage() {
-  const [formData, setFormData] = useState({
+  const { addNotification } = useNotification();
+
+  const [formData, setFormData] = useState<FormData>({
     matricNumber: "",
     fullName: "",
     department: "",
     image: "",
   });
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const votingStartTime = useMemo(() => new Date(votingStartTimeEnv || ""), []);
   const votingEndTime = useMemo(() => new Date(votingEndTimeEnv || ""), []);
@@ -26,7 +39,7 @@ export default function HomePage() {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -67,29 +80,57 @@ export default function HomePage() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const uploadImage = async (file: File): Promise<string> => {
+  useEffect(() => {
+    if (formData.image instanceof File) {
+      const objectUrl = URL.createObjectURL(formData.image);
+      setPreviewUrl(objectUrl);
+
+      return () => URL.revokeObjectURL(objectUrl);
+    } else if (typeof formData.image === "string") {
+      setPreviewUrl(formData.image);
+    } else {
+      setPreviewUrl(null);
+    }
+  }, [formData.image]);
+
+  const uploadImage = async (file: File): Promise<string | null> => {
     setUploading(true);
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "your_upload_preset"); 
+
     try {
-      const response = await fetch(
-        "https://api.cloudinary.com/v1_1/your_cloud_name/image/upload",
-        { method: "POST", body: formData }
-      );
-      const data = await response.json();
-      return data.secure_url;
-    } catch {
-      alert("Image upload failed.");
-      return "";
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "votingApp");
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        addNotification("error", result.error || "Failed to upload image.");
+        return null;
+      }
+
+      const result = await response.json();
+      return result.url;
+    } catch (error) {
+      addNotification("error", "Error uploading image.");
+      return null;
     } finally {
       setUploading(false);
     }
   };
 
   const handleLogin = async () => {
+    // Check localStorage for voting status
+    if (localStorage.getItem("voterData") === "true") {
+      addNotification("info", "You have already voted on this device.");
+      return;
+    }
+
     if (!isVotingPeriod) {
-      alert("You can only log in during the voting period.");
+      addNotification("error", "You can only log in during the voting period.");
       return;
     }
 
@@ -99,13 +140,20 @@ export default function HomePage() {
       !formData.department ||
       !formData.image
     ) {
-      alert("All fields are required.");
+      addNotification("error", "All fields are required.");
       return;
     }
 
     try {
-      const imageUrl = await uploadImage(formData.image as unknown as File);
-      if (!imageUrl) return;
+      const imageFile = formData.image instanceof File ? formData.image : null;
+      const imageUrl = imageFile
+        ? await uploadImage(imageFile)
+        : formData.image;
+
+      if (!imageUrl) {
+        addNotification("error", "Image upload failed. Please try again.");
+        return;
+      }
 
       const response = await fetch("/api/login", {
         method: "POST",
@@ -120,14 +168,17 @@ export default function HomePage() {
 
       const result = await response.json();
       if (!response.ok) {
-        alert(result.error || "Failed to log in.");
+        addNotification("error", result.error || "Failed to log in.");
         return;
       }
 
-      localStorage.setItem("voterData", JSON.stringify(formData));
+      // Save voting status in localStorage
+      localStorage.setItem("voterData", "true");
+      addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {
-      alert("An error occurred while logging in.");
+      console.error("Login error:", error);
+      addNotification("error", "An error occurred while logging in.");
     }
   };
 
@@ -181,7 +232,7 @@ export default function HomePage() {
           type="text"
           name="matricNumber"
           placeholder="Matric Number"
-          className="w-full mb-4 px-4 py-2 border rounded-lg text-gray-600  font-semibold"
+          className="w-full mb-4 px-4 py-2 border rounded-lg text-gray-600 font-semibold"
           onChange={handleInputChange}
         />
         <input
@@ -215,9 +266,9 @@ export default function HomePage() {
                 d="M16 16v6m0 0l-4-4m4 4l4-4m-4-2a9 9 0 110-18 9 9 0 010 18z"
               />
             </svg>
-            {formData.image ? (
+            {previewUrl ? (
               <Image
-                src={formData.image}
+                src={previewUrl}
                 alt="Selected file preview"
                 className="object-cover rounded"
                 width={96}
@@ -240,7 +291,7 @@ export default function HomePage() {
               if (file) {
                 setFormData({
                   ...formData,
-                  image: URL.createObjectURL(file),
+                  image: file,
                 });
               }
             }}
