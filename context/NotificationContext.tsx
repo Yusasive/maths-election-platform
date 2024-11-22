@@ -20,7 +20,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [recentMessages, setRecentMessages] = useState<Set<string>>(new Set()); 
 
-  const MAX_NOTIFICATIONS = 2; 
+  const MAX_NOTIFICATIONS = 1; 
 
   const addNotification = (type: Notification["type"], message: string) => {
     if (recentMessages.has(message)) return;
