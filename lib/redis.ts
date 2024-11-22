@@ -10,17 +10,39 @@ redisClient.on("error", (err) => {
   console.error("Redis connection error:", err);
 });
 
-await redisClient.connect();
-
-export async function getCachedData(key: string, dbCallback: () => Promise<any>, ttl = 3600) {
-  const cachedData = await redisClient.get(key);
-  if (cachedData) {
-    return JSON.parse(cachedData); 
+(async () => {
+  try {
+    await redisClient.connect();
+  } catch (err) {
+    console.error("Failed to connect to Redis:", err);
   }
+})();
 
-  const freshData = await dbCallback();
-  await redisClient.set(key, JSON.stringify(freshData), { EX: ttl }); 
-  return freshData;
+/**
+ *
+ * @param key - The key to check in the Redis cache.
+ * @param dbCallback - The callback to fetch fresh data if the cache is empty.
+ * @param ttl - The time-to-live (TTL) for the cached data in seconds (default: 3600).
+ * @returns The cached or fresh data.
+ */
+export async function getCachedData<T>(
+  key: string,
+  dbCallback: () => Promise<T>,
+  ttl = 3600
+): Promise<T> {
+  try {
+    const cachedData = await redisClient.get(key);
+    if (cachedData) {
+      return JSON.parse(cachedData) as T;
+    }
+
+    const freshData = await dbCallback();
+    await redisClient.set(key, JSON.stringify(freshData), { EX: ttl });
+    return freshData;
+  } catch (err) {
+    console.error("Redis error:", err);
+    throw err; 
+  }
 }
 
 export { redisClient };

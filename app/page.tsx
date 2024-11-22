@@ -32,7 +32,7 @@ export default function HomePage() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [timeRemaining, setTimeRemaining] = useState("");
   const [isVotingPeriod, setIsVotingPeriod] = useState(false);
-  const [uploading, setUploading] = useState(false);
+  const [, setUploading] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -114,7 +114,7 @@ export default function HomePage() {
 
       const result = await response.json();
       return result.url;
-    } catch (error) {
+    } catch {
       addNotification("error", "Error uploading image.");
       return null;
     } finally {
@@ -123,7 +123,6 @@ export default function HomePage() {
   };
 
   const handleLogin = async () => {
-    // Check localStorage for voting status
     if (localStorage.getItem("voterData") === "true") {
       addNotification("info", "You have already voted on this device.");
       return;
