@@ -3,7 +3,6 @@ import clientPromise from "@/lib/mongodb";
 
 const DB_NAME = "votingApp";
 const COLLECTION_NAME = "users";
-
 export async function POST(request: Request) {
   try {
     const { matricNumber, fullName, department, image } = await request.json();
