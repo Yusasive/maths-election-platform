@@ -39,7 +39,7 @@ export default function ResultsPage() {
       setLoading(true);
       try {
  
-        const positionResponse = await fetch("/api/candidates");
+        const positionResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/candidates/`);
         if (!positionResponse.ok) {
           throw new Error(
             `Failed to fetch candidates: ${positionResponse.status}`
@@ -48,7 +48,7 @@ export default function ResultsPage() {
         const positionsData: PositionData[] = await positionResponse.json();
         setPositions(positionsData);
 
-        const voteResponse = await fetch("/api/results");
+        const voteResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/results/`);
         if (!voteResponse.ok) {
           throw new Error(`Failed to fetch votes: ${voteResponse.status}`);
         }

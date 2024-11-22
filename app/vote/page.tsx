@@ -119,7 +119,7 @@ export default function VotingPage() {
     }
 
     try {
-      const response = await fetch("/api/votes", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/votes/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

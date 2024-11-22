@@ -101,7 +101,7 @@ export default function HomePage() {
       formData.append("file", file);
       formData.append("upload_preset", "votingApp");
 
-      const response = await fetch("/api/upload", {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/`, {
         method: "POST",
         body: formData,
       });
@@ -161,7 +161,7 @@ export default function HomePage() {
         image: imageUrl,
       };
 
-      localStorage.setItem("voterData", JSON.stringify(voterData)); // Store the full voter data
+      localStorage.setItem("voterData", JSON.stringify(voterData));
 
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
