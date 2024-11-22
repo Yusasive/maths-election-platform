@@ -123,7 +123,7 @@ export default function HomePage() {
   };
 
   const handleLogin = async () => {
-    if (localStorage.getItem("voterData") === "true") {
+    if (localStorage.getItem("voteRecord") === "true") {
       addNotification("info", "You have already voted on this device.");
       return;
     }
@@ -154,25 +154,15 @@ export default function HomePage() {
         return;
       }
 
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matricNumber: formData.matricNumber.toLowerCase(),
-          fullName: formData.fullName,
-          department: formData.department,
-          image: imageUrl,
-        }),
-      });
+      const voterData = {
+        matricNumber: formData.matricNumber.toLowerCase(),
+        fullName: formData.fullName,
+        department: formData.department,
+        image: imageUrl,
+      };
 
-      const result = await response.json();
-      if (!response.ok) {
-        addNotification("error", result.error || "Failed to log in.");
-        return;
-      }
+      localStorage.setItem("voterData", JSON.stringify(voterData)); // Store the full voter data
 
-      // Save voting status in localStorage
-      localStorage.setItem("voterData", "true");
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {

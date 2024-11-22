@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import candidates from "../../data/candidates.json";
 import { useNotification } from "@/context/NotificationContext";
-
 interface Candidate {
   id: number;
   name: string;
@@ -43,11 +42,11 @@ const useCountdown = (endTime: number | null): number => {
   return timeLeft;
 };
 
-export default function VotingPage(){
+export default function VotingPage() {
   const [selections, setSelections] = useState<Selections>({});
   const [voterData, setVoterData] = useState<VoterData | null>(null);
   const [isVotingOpen, setIsVotingOpen] = useState(false);
-  const { addNotification } = useNotification(); 
+  const { addNotification } = useNotification();
 
   const loginEndTime = process.env.NEXT_PUBLIC_LOGIN_END_TIME
     ? new Date(process.env.NEXT_PUBLIC_LOGIN_END_TIME).getTime()
@@ -74,21 +73,22 @@ export default function VotingPage(){
     const storedVoterData = JSON.parse(
       localStorage.getItem("voterData") || "{}"
     ) as VoterData;
-    const hasVoted = localStorage.getItem("voteRecord");
 
     if (!storedVoterData?.matricNumber) {
       addNotification("error", "You must log in first!");
-      window.location.href = "/";
+      window.location.href = "/"; 
       return;
     }
+
+    const hasVoted = localStorage.getItem("voteRecord");
 
     if (hasVoted) {
       addNotification("warning", "You have already voted!");
-      window.location.href = "/";
+      window.location.href = "/congratulations"; 
       return;
     }
 
-    setVoterData(storedVoterData);
+    setVoterData(storedVoterData);  
 
     const interval = setInterval(() => {
       setIsVotingOpen(Date.now() <= (votingEndTime || 0));
@@ -161,7 +161,6 @@ export default function VotingPage(){
       setSelections({ ...selections, [position]: candidateId });
     }
   };
-
 
   return (
     <main className="p-6 bg-gradient-to-r from-gray-100 via-white to-gray-100 min-h-screen">
@@ -256,7 +255,7 @@ export default function VotingPage(){
                       src={candidate.imageUrl}
                       alt={`${candidate.name}'s photo`}
                       width={40}
-                      height={30}
+                      height={25}
                       className="rounded-full"
                     />
                     <label className="text-gray-700 font-medium">
