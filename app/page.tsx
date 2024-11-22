@@ -130,12 +130,18 @@ export default function HomePage() {
       addNotification("info", "You have already voted on this device.");
       return;
     }
-
+  
+    if (localStorage.getItem("voterData") && !localStorage.getItem("voteRecord")) {
+      addNotification("info", "You've logged in before. Proceed to vote.");
+      window.location.href = "/vote";
+      return;
+    }
+  
     if (!isVotingPeriod) {
       addNotification("error", "You can only log in during the voting period.");
       return;
     }
-
+  
     if (
       !formData.matricNumber ||
       !formData.fullName ||
@@ -145,18 +151,18 @@ export default function HomePage() {
       addNotification("error", "All fields are required.");
       return;
     }
-
+  
     try {
       const imageFile = formData.image instanceof File ? formData.image : null;
       const imageUrl = imageFile
         ? await uploadImage(imageFile)
         : formData.image;
-
+  
       if (!imageUrl) {
         addNotification("error", "Image upload failed. Please try again.");
         return;
       }
-
+  
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -167,22 +173,23 @@ export default function HomePage() {
           image: imageUrl,
         }),
       });
-
+  
       const result = await response.json();
+  
       if (!response.ok) {
         addNotification("error", result.error || "Failed to log in.");
         return;
       }
-
+  
       const voterData = {
         matricNumber: formData.matricNumber.toLowerCase(),
         fullName: formData.fullName,
         department: formData.department,
         image: imageUrl,
       };
-
+  
       localStorage.setItem("voterData", JSON.stringify(voterData));
-
+  
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {
@@ -190,6 +197,7 @@ export default function HomePage() {
       addNotification("error", "An error occurred while logging in.");
     }
   };
+  
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
