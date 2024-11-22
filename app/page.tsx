@@ -101,10 +101,13 @@ export default function HomePage() {
       formData.append("file", file);
       formData.append("upload_preset", "votingApp");
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload/`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/upload/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         const result = await response.json();
@@ -151,6 +154,23 @@ export default function HomePage() {
 
       if (!imageUrl) {
         addNotification("error", "Image upload failed. Please try again.");
+        return;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matricNumber: formData.matricNumber.toLowerCase(),
+          fullName: formData.fullName,
+          department: formData.department,
+          image: imageUrl,
+        }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        addNotification("error", result.error || "Failed to log in.");
         return;
       }
 
