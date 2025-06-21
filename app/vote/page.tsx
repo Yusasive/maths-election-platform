@@ -18,7 +18,7 @@ interface Position {
   candidates: Candidate[];
 }
 
-interface VoterData {
+interface mathsVoterData {
   matricNumber: string;
   fullName: string;
 }
@@ -44,7 +44,9 @@ const useCountdown = (endTime: number | null): number => {
 
 export default function VotingPage() {
   const [selections, setSelections] = useState<Selections>({});
-  const [voterData, setVoterData] = useState<VoterData | null>(null);
+  const [mathsVoterData, setmathsVoterData] = useState<mathsVoterData | null>(
+    null
+  );
   const [isVotingOpen, setIsVotingOpen] = useState(false);
   const { addNotification } = useNotification();
 
@@ -70,25 +72,25 @@ export default function VotingPage() {
   };
 
   useEffect(() => {
-    const storedVoterData = JSON.parse(
-      localStorage.getItem("voterData") || "{}"
-    ) as VoterData;
+    const storedmathsVoterData = JSON.parse(
+      localStorage.getItem("mathsVoterData") || "{}"
+    ) as mathsVoterData;
 
-    if (!storedVoterData?.matricNumber) {
+    if (!storedmathsVoterData?.matricNumber) {
       addNotification("error", "You must log in first!");
-      window.location.href = "/"; 
+      window.location.href = "/";
       return;
     }
 
-    const hasVoted = localStorage.getItem("voteRecord");
+    const hasVoted = localStorage.getItem("mathsVoteRecord");
 
     if (hasVoted) {
       addNotification("warning", "You have already voted!");
-      window.location.href = "/congratulations"; 
+      window.location.href = "/congratulations";
       return;
     }
 
-    setVoterData(storedVoterData);  
+    setmathsVoterData(storedmathsVoterData);
 
     const interval = setInterval(() => {
       setIsVotingOpen(Date.now() <= (votingEndTime || 0));
@@ -119,20 +121,23 @@ export default function VotingPage() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/votes/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matricNumber: voterData?.matricNumber,
-          votes: selections,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/votes/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            matricNumber: mathsVoterData?.matricNumber,
+            votes: selections,
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to submit your vote. Please try again later.");
       }
 
-      localStorage.setItem("voteRecord", JSON.stringify(selections));
+      localStorage.setItem("mathsVoteRecord", JSON.stringify(selections));
       addNotification("success", "Thank you for voting!");
       window.location.href = "/congratulations";
     } catch (error) {
@@ -168,7 +173,8 @@ export default function VotingPage() {
         className="text-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}>
+        transition={{ duration: 0.8 }}
+      >
         <h1 className="text-4xl font-extrabold text-gray-800">
           🗳️ Cast Your Vote
         </h1>
@@ -201,12 +207,14 @@ export default function VotingPage() {
         className="mt-8 space-y-6"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.8 }}>
+        transition={{ delay: 0.8, duration: 0.8 }}
+      >
         {candidates.map((position: Position) => (
           <motion.div
             key={position.position}
             className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 hover:shadow-xl transition"
-            whileHover={{ scale: 1.02 }}>
+            whileHover={{ scale: 1.02 }}
+          >
             <h2 className="text-xl font-bold text-gray-800 mb-4">
               {position.position}
             </h2>
@@ -214,7 +222,8 @@ export default function VotingPage() {
               {position.candidates.map((candidate: Candidate) => (
                 <div
                   key={candidate.id}
-                  className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 p-4 rounded-lg transition shadow-sm">
+                  className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 p-4 rounded-lg transition shadow-sm"
+                >
                   {position.allowMultiple ? (
                     <input
                       type="checkbox"
@@ -272,13 +281,15 @@ export default function VotingPage() {
         className="text-center mt-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.8 }}>
+        transition={{ delay: 1, duration: 0.8 }}
+      >
         <button
           onClick={handleVote}
           className={`relative w-full sm:w-1/3 bg-gradient-to-r from-green-400 via-green-500 to-green-600 text-white py-3 px-6 rounded-lg font-bold transition duration-300 ease-in-out transform hover:scale-105 ${
             !isVotingOpen ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          disabled={!isVotingOpen}>
+          disabled={!isVotingOpen}
+        >
           <span className="absolute inset-0 rounded-lg bg-green-500 opacity-0 group-hover:opacity-30 transition"></span>
           Cast Vote
         </button>

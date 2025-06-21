@@ -6,9 +6,9 @@ export default function CongratulationsPage() {
   const [balloons, setBalloons] = useState<string[]>([]);
 
   useEffect(() => {
-    const voteRecord = localStorage.getItem("voteRecord");
+    const mathsVoteRecord = localStorage.getItem("mathsVoteRecord");
 
-    if (!voteRecord) {
+    if (!mathsVoteRecord) {
       alert("Unauthorized access! Redirecting to login.");
       window.location.href = "/";
     } else {
@@ -56,7 +56,9 @@ export default function CongratulationsPage() {
           border-radius: 50% 50% 50% 50% / 60% 60% 80% 80%;
           position: absolute;
           bottom: -100px;
-          animation: floatUp 4s ease-in-out infinite, pop 0.5s steps(4, end) forwards;
+          animation:
+            floatUp 4s ease-in-out infinite,
+            pop 0.5s steps(4, end) forwards;
         }
 
         .balloon::after {

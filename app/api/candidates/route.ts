@@ -19,9 +19,9 @@ const candidatesData = [
     candidates: [
       {
         id: 2,
-        name: "Saheed Rofiat",
+        name: "Saheed Rofiat Ayomide",
         level: "300L",
-        imageUrl: "/maths.png",
+        imageUrl: "/sah.jpg",
       },
     ],
   },
@@ -33,7 +33,7 @@ const candidatesData = [
         id: 3,
         name: "Simeon Oluwadunsin Deborah",
         level: "300L",
-        imageUrl: "/maths.png",
+        imageUrl: "/olu.jpg",
       },
     ],
   },
@@ -45,7 +45,7 @@ const candidatesData = [
         id: 4,
         name: "Akewusola Babatunde Adewale",
         level: "200L",
-        imageUrl: "/maths.png",
+        imageUrl: "/bab.jpg",
       },
     ],
   },
@@ -57,7 +57,7 @@ const candidatesData = [
         id: 5,
         name: "Tiamiyu Abiodun Jemil",
         level: "300L",
-        imageUrl: "/maths.png",
+        imageUrl: "/tia.jpg",
       },
     ],
   },
@@ -69,7 +69,7 @@ const candidatesData = [
         id: 6,
         name: "Sanusi Adeola Abraham",
         level: "300L",
-        imageUrl: "/maths.png",
+        imageUrl: "/san.jpg",
       },
     ],
   },
@@ -99,17 +99,24 @@ const candidatesData = [
         id: 9,
         name: "Ajibola Iyanu Precious",
         level: "200L",
-        imageUrl: "/maths.png",
+        imageUrl: "/aji.jpg",
       },
       {
         id: 10,
         name: "Oluwadunsin Silvanus O.",
+        level: "200L",
+        imageUrl: "/sil.jpg",
+      },
+      {
+        id: 12,
+        name: "Bakare Micheal Olamide",
         level: "100L",
-        imageUrl: "/maths.png",
+        imageUrl: "/bak.jpg",
       },
     ],
   },
 ];
+;
 export async function GET() {
   return NextResponse.json(candidatesData);
 }

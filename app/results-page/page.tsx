@@ -38,8 +38,9 @@ export default function ResultsPage() {
     const fetchResults = async () => {
       setLoading(true);
       try {
- 
-        const positionResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/candidates/`);
+        const positionResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/candidates/`
+        );
         if (!positionResponse.ok) {
           throw new Error(
             `Failed to fetch candidates: ${positionResponse.status}`
@@ -48,7 +49,9 @@ export default function ResultsPage() {
         const positionsData: PositionData[] = await positionResponse.json();
         setPositions(positionsData);
 
-        const voteResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/results/`);
+        const voteResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/results/`
+        );
         if (!voteResponse.ok) {
           throw new Error(`Failed to fetch votes: ${voteResponse.status}`);
         }
@@ -56,8 +59,8 @@ export default function ResultsPage() {
 
         const aggregatedResults: AggregatedVotes = {};
 
-        rawVotes.forEach((voteRecord) => {
-          Object.entries(voteRecord.votes).forEach(
+        rawVotes.forEach((mathsVoteRecord) => {
+          Object.entries(mathsVoteRecord.votes).forEach(
             ([position, candidateIds]) => {
               if (!aggregatedResults[position]) {
                 aggregatedResults[position] = {};
@@ -104,7 +107,8 @@ export default function ResultsPage() {
       return (
         <div
           key={position.position}
-          className="bg-white shadow-lg p-6 rounded-lg mb-6 border border-gray-200 hover:shadow-xl transition">
+          className="bg-white shadow-lg p-6 rounded-lg mb-6 border border-gray-200 hover:shadow-xl transition"
+        >
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
             {position.position}
           </h2>
@@ -114,7 +118,8 @@ export default function ResultsPage() {
               return (
                 <li
                   key={candidate.id}
-                  className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition">
+                  className="flex justify-between items-center bg-gray-50 p-3 rounded-lg shadow-sm hover:bg-gray-100 transition"
+                >
                   <div className="flex items-center gap-3">
                     <Image
                       src={candidate.imageUrl}

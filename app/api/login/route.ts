@@ -9,7 +9,10 @@ export async function POST(request: Request) {
 
     if (!matricNumber || !fullName || !department || !image) {
       return NextResponse.json(
-        { error: "All fields (matricNumber, fullName, department, image) are required" },
+        {
+          error:
+            "All fields (matricNumber, fullName, department, image) are required",
+        },
         { status: 400 }
       );
     }
@@ -35,8 +38,8 @@ export async function POST(request: Request) {
       fullName,
       department,
       image,
-      voterData: false, 
-      createdAt: new Date(), 
+      mathsVoterData: false,
+      createdAt: new Date(),
     };
 
     const result = await collection.insertOne(newUser);

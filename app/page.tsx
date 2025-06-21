@@ -126,22 +126,25 @@ export default function HomePage() {
   };
 
   const handleLogin = async () => {
-    if (localStorage.getItem("voteRecord") === "true") {
+    if (localStorage.getItem("mathsVoteRecord") === "true") {
       addNotification("info", "You have already voted on this device.");
       return;
     }
-  
-    if (localStorage.getItem("voterData") && !localStorage.getItem("voteRecord")) {
+
+    if (
+      localStorage.getItem("mathsVoterData") &&
+      !localStorage.getItem("mathsVoteRecord")
+    ) {
       addNotification("info", "You've logged in before. Proceed to vote.");
       window.location.href = "/vote";
       return;
     }
-  
+
     if (!isVotingPeriod) {
       addNotification("error", "You can only log in during the voting period.");
       return;
     }
-  
+
     if (
       !formData.matricNumber ||
       !formData.fullName ||
@@ -151,45 +154,48 @@ export default function HomePage() {
       addNotification("error", "All fields are required.");
       return;
     }
-  
+
     try {
       const imageFile = formData.image instanceof File ? formData.image : null;
       const imageUrl = imageFile
         ? await uploadImage(imageFile)
         : formData.image;
-  
+
       if (!imageUrl) {
         addNotification("error", "Image upload failed. Please try again.");
         return;
       }
-  
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matricNumber: formData.matricNumber.toLowerCase(),
-          fullName: formData.fullName,
-          department: formData.department,
-          image: imageUrl,
-        }),
-      });
-  
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/login/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            matricNumber: formData.matricNumber.toLowerCase(),
+            fullName: formData.fullName,
+            department: formData.department,
+            image: imageUrl,
+          }),
+        }
+      );
+
       const result = await response.json();
-  
+
       if (!response.ok) {
         addNotification("error", result.error || "Failed to log in.");
         return;
       }
-  
-      const voterData = {
+
+      const mathsVoterData = {
         matricNumber: formData.matricNumber.toLowerCase(),
         fullName: formData.fullName,
         department: formData.department,
         image: imageUrl,
       };
-  
-      localStorage.setItem("voterData", JSON.stringify(voterData));
-  
+
+      localStorage.setItem("mathsVoterData", JSON.stringify(mathsVoterData));
+
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {
@@ -197,7 +203,6 @@ export default function HomePage() {
       addNotification("error", "An error occurred while logging in.");
     }
   };
-  
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
@@ -220,7 +225,8 @@ export default function HomePage() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-6 h-6 mr-2">
+                className="w-6 h-6 mr-2"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -244,7 +250,8 @@ export default function HomePage() {
         onSubmit={(e) => {
           e.preventDefault();
           handleLogin();
-        }}>
+        }}
+      >
         <input
           type="text"
           name="matricNumber"
@@ -269,14 +276,16 @@ export default function HomePage() {
         <div className="relative w-full mb-4">
           <label
             htmlFor="image"
-            className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed rounded-lg text-gray-600 font-semibold bg-white cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500">
+            className="flex flex-col items-center justify-center w-full px-4 py-6 border-2 border-dashed rounded-lg text-gray-600 font-semibold bg-white cursor-pointer hover:bg-gray-50 focus:ring-2 focus:ring-blue-500"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-8 w-8 text-blue-500 mb-2"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              strokeWidth={2}>
+              strokeWidth={2}
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -320,7 +329,8 @@ export default function HomePage() {
           className={`w-full bg-blue-500 font-semibold text-white py-2 px-4 rounded-lg ${
             !isVotingPeriod ? "opacity-50 cursor-not-allowed" : ""
           }`}
-          disabled={!isVotingPeriod}>
+          disabled={!isVotingPeriod}
+        >
           Login & Vote
         </button>
       </form>

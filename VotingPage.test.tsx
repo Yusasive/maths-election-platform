@@ -55,11 +55,10 @@ describe("VotingPage", () => {
 
   test("redirects if voter data is missing", () => {
     const obj: { [key: string]: any } = {
-        location: window.location,
-      };
-      
-      delete obj.location;
-      
+      location: window.location,
+    };
+
+    delete obj.location;
 
     render(<VotingPage />);
 
@@ -71,14 +70,16 @@ describe("VotingPage", () => {
   });
 
   test("redirects if voter has already voted", () => {
-    localStorage.setItem("voterData", JSON.stringify({ matricNumber: "123" }));
-    localStorage.setItem("voteRecord", JSON.stringify({}));
+    localStorage.setItem(
+      "mathsVoterData",
+      JSON.stringify({ matricNumber: "123" })
+    );
+    localStorage.setItem("mathsVoteRecord", JSON.stringify({}));
     const obj: { [key: string]: any } = {
-        location: window.location,
-      };
-      
-      delete obj.location;
-      
+      location: window.location,
+    };
+
+    delete obj.location;
 
     render(<VotingPage />);
 
@@ -97,7 +98,10 @@ describe("VotingPage", () => {
       Date.now() + 7200000
     ).toISOString(); // 2 hours
 
-    localStorage.setItem("voterData", JSON.stringify({ matricNumber: "123" }));
+    localStorage.setItem(
+      "mathsVoterData",
+      JSON.stringify({ matricNumber: "123" })
+    );
 
     render(<VotingPage />);
 
@@ -118,7 +122,10 @@ describe("VotingPage", () => {
     ];
     jest.mock("../../data/candidates.json", () => mockCandidates);
 
-    localStorage.setItem("voterData", JSON.stringify({ matricNumber: "123" }));
+    localStorage.setItem(
+      "mathsVoterData",
+      JSON.stringify({ matricNumber: "123" })
+    );
 
     render(<VotingPage />);
 
@@ -147,7 +154,10 @@ describe("VotingPage", () => {
     ];
     jest.mock("../../data/candidates.json", () => mockCandidates);
 
-    localStorage.setItem("voterData", JSON.stringify({ matricNumber: "123" }));
+    localStorage.setItem(
+      "mathsVoterData",
+      JSON.stringify({ matricNumber: "123" })
+    );
 
     render(<VotingPage />);
 
@@ -177,7 +187,10 @@ describe("VotingPage", () => {
     ];
     jest.mock("../../data/candidates.json", () => mockCandidates);
 
-    localStorage.setItem("voterData", JSON.stringify({ matricNumber: "123" }));
+    localStorage.setItem(
+      "mathsVoterData",
+      JSON.stringify({ matricNumber: "123" })
+    );
 
     render(<VotingPage />);
 
