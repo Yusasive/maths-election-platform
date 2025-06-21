@@ -1,41 +1,115 @@
 import { NextResponse } from "next/server";
 
-// Mocked data (replace this with a database call if necessary)
 const candidatesData = [
   {
-    position: "Sport Secretary",
+    position: "Presdient",
     allowMultiple: false,
     candidates: [
-      { id: 1, name: "Olabamidele Oluwadamilola E.", level: "400L", imageUrl: "/dammy.jpg" },
+      {
+        id: 1,
+        name: "Iyanda Demilade James",
+        level: "300L",
+        imageUrl: "/iyanda.jpg",
+      },
     ],
   },
   {
-    position: "Social Secretary",
+    position: "Vice President",
     allowMultiple: false,
     candidates: [
-      { id: 2, name: "Igbinedion Elijah Itobere", level: "300L", imageUrl: "/elijah.jpg" },
+      {
+        id: 2,
+        name: "Saheed Rofiat",
+        level: "300L",
+        imageUrl: "/maths.png",
+      },
+    ],
+  },
+  {
+    position: "General Secretary",
+    allowMultiple: false,
+    candidates: [
+      {
+        id: 3,
+        name: "Simeon Oluwadunsin Deborah",
+        level: "300L",
+        imageUrl: "/maths.png",
+      },
+    ],
+  },
+  {
+    position: "Welfare Secretary",
+    allowMultiple: false,
+    candidates: [
+      {
+        id: 4,
+        name: "Akewusola Babatunde Adewale",
+        level: "200L",
+        imageUrl: "/maths.png",
+      },
+    ],
+  },
+  {
+    position: "Sport Director",
+    allowMultiple: false,
+    candidates: [
+      {
+        id: 5,
+        name: "Tiamiyu Abiodun Jemil",
+        level: "300L",
+        imageUrl: "/maths.png",
+      },
+    ],
+  },
+  {
+    position: "Financial Secretary",
+    allowMultiple: false,
+    candidates: [
+      {
+        id: 6,
+        name: "Sanusi Adeola Abraham",
+        level: "300L",
+        imageUrl: "/maths.png",
+      },
     ],
   },
   {
     position: "Public Relations Officer {PRO}",
     allowMultiple: false,
     candidates: [
-      { id: 3, name: "Iyanda Demilade James", level: "300L", imageUrl: "/iyanda.jpg" },
-      { id: 4, name: "Bello Basit Korede", level: "200L", imageUrl: "/basit.jpg" },
+      {
+        id: 7,
+        name: "Bello Basit Korede",
+        level: "300L",
+        imageUrl: "/basit.jpg",
+      },
     ],
   },
   {
     position: "Student Representative Councils {SRC}",
     allowMultiple: true,
     candidates: [
-      { id: 5, name: "Idris Aliyah Olajumoke", level: "300L", imageUrl: "/aliyah.jpg" },
-      { id: 6, name: "Agbaje Oluwaseun David", level: "100L", imageUrl: "/agbaje.jpg" },
-      { id: 7, name: "Bakare Micheal Olamide", level: "100L", imageUrl: "/maths.png" },
+      {
+        id: 8,
+        name: "Idris Aliyah Olajumoke",
+        level: "300L",
+        imageUrl: "/aliyah.jpg",
+      },
+      {
+        id: 9,
+        name: "Ajibola Iyanu Precious",
+        level: "200L",
+        imageUrl: "/maths.png",
+      },
+      {
+        id: 10,
+        name: "Oluwadunsin Silvanus O.",
+        level: "100L",
+        imageUrl: "/maths.png",
+      },
     ],
   },
 ];
-
-// Exporting GET handler for App Router
 export async function GET() {
   return NextResponse.json(candidatesData);
 }
