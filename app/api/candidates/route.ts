@@ -116,7 +116,6 @@ const candidatesData = [
     ],
   },
 ];
-;
 export async function GET() {
   return NextResponse.json(candidatesData);
 }
