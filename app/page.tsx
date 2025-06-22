@@ -207,7 +207,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
-        Department of Mathematics Election Voting
+        Department of Mathematics Voting Platform
       </h1>
       <Image
         src="/maths.png"
