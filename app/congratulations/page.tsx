@@ -47,7 +47,7 @@ export default function CongratulationsPage() {
         }}
         className="mt-10 relative overflow-hidden bg-blue-500 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-600 transition duration-200 group focus:outline-none focus:ring-2 focus:ring-blue-400 z-10"
       >
-        Return to Home
+        Return to Home 
       </button>
       <style jsx>{`
         .balloon {
