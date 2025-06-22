@@ -237,7 +237,7 @@ export default function HomePage() {
             </span>
           </p>
         ) : (
-          <p className="text-red-600">
+          <p className="text-red-600 text-center mx-8">
             {currentTime < votingStartTime
               ? `Voting has not started yet. Time remaining: `
               : `.`}
