@@ -202,7 +202,7 @@ export default function HomePage() {
       // console.error("Login error:", error);
       addNotification("error", "An error occurred while logging in.");
     }
-  };
+  }; 
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">

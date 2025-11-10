@@ -76,11 +76,11 @@ export default function VotingPage() {
       localStorage.getItem("mathsVoterData_v2") || "{}"
     ) as mathsVoterData;
 
-    if (!storedmathsVoterData?.matricNumber) {
-      addNotification("error", "You must log in first!");
-      window.location.href = "/";
-      return;
-    }
+    // if (!storedmathsVoterData?.matricNumber) {
+    //   addNotification("error", "You must log in first!");
+    //   window.location.href = "/";
+    //   return;
+    // }
 
     const hasVoted = localStorage.getItem("mathsVoteRecord_v2");
 
@@ -99,14 +99,63 @@ export default function VotingPage() {
     return () => clearInterval(interval);
   }, [votingEndTime, addNotification]);
 
-  // Narrow candidates loaded from JSON to a safe, non-nullable array of Position
-  const validCandidates = (candidates as Array<Position | undefined>).filter(
-    (p): p is Position =>
-      !!p &&
-      typeof p.position === "string" &&
-      Array.isArray(p.candidates) &&
-      p.candidates.every((c) => c && typeof c.id === "number")
-  );
+  // Normalize and flatten candidate data from JSON into a consistent Position[] for rendering.
+  // Use `unknown` + type-guards to avoid `any` and to satisfy stricter lint rules.
+  const isNestedPosition = (v: unknown): v is Position => {
+    if (typeof v !== "object" || v === null) return false;
+    const r = v as Record<string, unknown>;
+    return (
+      "position" in r &&
+      typeof r.position === "string" &&
+      Array.isArray(r.candidates)
+    );
+  };
+
+  const isCandidateObject = (v: unknown): v is Candidate => {
+    if (typeof v !== "object" || v === null) return false;
+    const r = v as Record<string, unknown>;
+    return "id" in r && typeof r.id === "number";
+  };
+
+  const positionsToRender: Position[] = (candidates as unknown[])
+    .flatMap((item) => {
+      if (!item || typeof item !== "object") return [];
+
+      const obj = item as Record<string, unknown>;
+
+      // If the item's candidates are nested positions, expand them.
+      if (
+        Array.isArray(obj.candidates) &&
+        obj.candidates.every((c) => isNestedPosition(c))
+      ) {
+        return (obj.candidates as unknown[]).map((nested) => ({
+          position: (nested as Position).position,
+          allowMultiple: !!(nested as Position).allowMultiple,
+          candidates: ((nested as Position).candidates || []).filter(
+            isCandidateObject
+          ) as Candidate[],
+        }));
+      }
+
+      // Otherwise treat the item as a normal Position with Candidate objects.
+      return [
+        {
+          position: String(obj.position || ""),
+          allowMultiple: !!obj.allowMultiple,
+          candidates: (Array.isArray(obj.candidates)
+            ? obj.candidates
+            : []
+          ).filter(isCandidateObject) as Candidate[],
+        },
+      ];
+    })
+    .filter(
+      (p) =>
+        p &&
+        typeof p.position === "string" &&
+        Array.isArray(p.candidates) &&
+        p.candidates.length > 0
+    );
 
   const handleVote = async () => {
     if (!isVotingOpen) {
@@ -114,11 +163,12 @@ export default function VotingPage() {
       return;
     }
 
-    const allPositions = validCandidates.map(
+    const allPositions = positionsToRender.map(
       (position: Position) => position.position
     );
     const missingVotes = allPositions.filter(
-      (pos) => !selections[pos] || (selections[pos] as string[]).length === 0
+      (pos: string) =>
+        !selections[pos] || (selections[pos] as string[]).length === 0
     );
 
     if (missingVotes.length > 0) {
@@ -218,7 +268,7 @@ export default function VotingPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.8 }}
       >
-        {validCandidates.map((position: Position) => (
+        {positionsToRender.map((position: Position) => (
           <motion.div
             key={position.position}
             className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 hover:shadow-xl transition"
