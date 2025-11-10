@@ -199,7 +199,7 @@ export default function HomePage() {
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {
-      console.error("Login error:", error);
+      // console.error("Login error:", error);
       addNotification("error", "An error occurred while logging in.");
     }
   };

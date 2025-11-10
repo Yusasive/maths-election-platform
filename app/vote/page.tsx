@@ -99,13 +99,22 @@ export default function VotingPage() {
     return () => clearInterval(interval);
   }, [votingEndTime, addNotification]);
 
+  // Narrow candidates loaded from JSON to a safe, non-nullable array of Position
+  const validCandidates = (candidates as Array<Position | undefined>).filter(
+    (p): p is Position =>
+      !!p &&
+      typeof p.position === "string" &&
+      Array.isArray(p.candidates) &&
+      p.candidates.every((c) => c && typeof c.id === "number")
+  );
+
   const handleVote = async () => {
     if (!isVotingOpen) {
       addNotification("error", "Voting is closed.");
       return;
     }
 
-    const allPositions = candidates.map(
+    const allPositions = validCandidates.map(
       (position: Position) => position.position
     );
     const missingVotes = allPositions.filter(
@@ -209,7 +218,7 @@ export default function VotingPage() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.8 }}
       >
-        {candidates.map((position: Position) => (
+        {validCandidates.map((position: Position) => (
           <motion.div
             key={position.position}
             className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 hover:shadow-xl transition"
