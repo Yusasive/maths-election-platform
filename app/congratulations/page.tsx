@@ -6,7 +6,7 @@ export default function CongratulationsPage() {
   const [balloons, setBalloons] = useState<string[]>([]);
 
   useEffect(() => {
-    const mathsVoteRecord = localStorage.getItem("mathsVoteRecord");
+    const mathsVoteRecord = localStorage.getItem("mathsVoteRecord_v2");
 
     if (!mathsVoteRecord) {
       alert("Unauthorized access! Redirecting to login.");

@@ -73,7 +73,7 @@ export default function VotingPage() {
 
   useEffect(() => {
     const storedmathsVoterData = JSON.parse(
-      localStorage.getItem("mathsVoterData") || "{}"
+      localStorage.getItem("mathsVoterData_v2") || "{}"
     ) as mathsVoterData;
 
     if (!storedmathsVoterData?.matricNumber) {
@@ -82,7 +82,7 @@ export default function VotingPage() {
       return;
     }
 
-    const hasVoted = localStorage.getItem("mathsVoteRecord");
+    const hasVoted = localStorage.getItem("mathsVoteRecord_v2");
 
     if (hasVoted) {
       addNotification("warning", "You have already voted!");
@@ -137,7 +137,7 @@ export default function VotingPage() {
         throw new Error("Failed to submit your vote. Please try again later.");
       }
 
-      localStorage.setItem("mathsVoteRecord", JSON.stringify(selections));
+      localStorage.setItem("mathsVoteRecord_v2", JSON.stringify(selections));
       addNotification("success", "Thank you for voting!");
       window.location.href = "/congratulations";
     } catch (error) {

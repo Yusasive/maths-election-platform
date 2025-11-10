@@ -126,14 +126,14 @@ export default function HomePage() {
   };
 
   const handleLogin = async () => {
-    if (localStorage.getItem("mathsVoteRecord") === "true") {
+    if (localStorage.getItem("mathsVoteRecord_v2") === "true") {
       addNotification("info", "You have already voted on this device.");
       return;
     }
 
     if (
-      localStorage.getItem("mathsVoterData") &&
-      !localStorage.getItem("mathsVoteRecord")
+      localStorage.getItem("mathsVoterData_v2") &&
+      !localStorage.getItem("mathsVoteRecord_v2")
     ) {
       addNotification("info", "You've logged in before. Proceed to vote.");
       window.location.href = "/vote";
@@ -194,7 +194,7 @@ export default function HomePage() {
         image: imageUrl,
       };
 
-      localStorage.setItem("mathsVoterData", JSON.stringify(mathsVoterData));
+      localStorage.setItem("mathsVoterData_v2", JSON.stringify(mathsVoterData));
 
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
@@ -207,7 +207,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
-        Department of Mathematics Voting Platform
+        Department of Mathematics Bye-Election Voting Platform
       </h1>
       <Image
         src="/maths.png"
