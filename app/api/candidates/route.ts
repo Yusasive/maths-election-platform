@@ -2,143 +2,84 @@ import { NextResponse } from "next/server";
 
 const candidatesData = [
   {
-    position: "Presdient",
-    allowMultiple: false,
-    candidates: [
+    "position": "Social Director",
+    "allowMultiple": false,
+    "candidates": [
       {
-        id: 1,
-        name: "Iyanda Demilade James",
-        level: "300L",
-        imageUrl: "/iyanda.jpg",
-      },
-    ],
+        "id": 1,
+        "name": "Akeeb Abubakr Busayo",
+        "level": "400L",
+        "imageUrl": "/akeeb.jpg"
+      }
+    ]
   },
+
   {
-    position: "Vice President",
-    allowMultiple: false,
-    candidates: [
+    "position": "Student Representative Councils {SRC}",
+    "allowMultiple": true,
+    "candidates": [
       {
-        id: 2,
-        name: "Saheed Rofiat Ayomide",
-        level: "300L",
-        imageUrl: "/sah.jpg",
-      },
-    ],
-  },
-  {
-    position: "General Secretary",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 3,
-        name: "Simeon Oluwadunsin Deborah",
-        level: "300L",
-        imageUrl: "/olu.jpg",
-      },
-    ],
-  },
-  {
-    position: "Assist. General Secretary",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 4,
-        name: "Elijah Esther",
-        level: "100L",
-        imageUrl: "/ali.jpg",
-      },
-    ],
-  },
-  {
-    position: "Welfare Secretary",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 5,
-        name: "Akewusola Babatunde Adewale",
-        level: "200L",
-        imageUrl: "/bab.jpg",
-      },
-    ],
-  },
-  {
-    position: "Sport Director",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 6,
-        name: "Tiamiyu Abiodun Jemil",
-        level: "300L",
-        imageUrl: "/tia.jpg",
-      },
-    ],
-  },
-  {
-    position: "Financial Secretary",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 7,
-        name: "Sanusi Adeola Abraham",
-        level: "300L",
-        imageUrl: "/san.jpg",
-      },
-    ],
-  },
-  {
-    position: "Public Relations Officer {PRO}",
-    allowMultiple: false,
-    candidates: [
-      {
-        id: 8,
-        name: "Bello Basit Korede",
-        level: "300L",
-        imageUrl: "/basit.jpg",
-      },
-    ],
-  },
-  {
-    position: "Student Representative Councils {SRC}",
-    allowMultiple: true,
-    candidates: [
-      {
-        id: 9,
-        name: "Idris Aliyah Olajumoke",
-        level: "300L",
-        imageUrl: "/aliyah.jpg",
+        "id": 1,
+        "name": "Alabi Sodiq Olaniyi",
+        "level": "400L",
+        "imageUrl": "/alabi.jpg"
       },
       {
-        id: 10,
-        name: "Abdurraheem Ramadhan ",
-        level: "300L",
-        imageUrl: "/ram.jpg",
+        "id": 2,
+        "name": "Taiwo Nicole Ifeoluwa",
+        "level": "400L",
+        "imageUrl": "/taiwo.jpg"
       },
       {
-        id: 11,
-        name: "Ajibola Iyanu Precious",
-        level: "200L",
-        imageUrl: "/aji.jpg",
+        "id": 3,
+        "name": "Anifowose Precious Oluwatunmise",
+        "level": "300L",
+        "imageUrl": "/anifowo.jpg"
       },
       {
-        id: 12,
-        name: "Oluwadunsin Silvanus O.",
-        level: "200L",
-        imageUrl: "/sil.jpg",
+        "id": 4,
+        "name": "Oluwatoyin Matias Damilare",
+        "level": "300L",
+        "imageUrl": "/oluwatoyin.jpg"
       },
       {
-        id: 13,
-        name: "Bakare Micheal Olamide",
-        level: "100L",
-        imageUrl: "/bak.jpg",
+        "id": 5,
+        "name": "Convenant Nwafor",
+        "level": "200L",
+        "imageUrl": "/convenat.jpg"
       },
       {
-        id: 14,
-        name: "Adefila Oluwapelumi Adedayo",
-        level: "100L",
-        imageUrl: "/ade.jpg",
+        "id": 6,
+        "name": "Adefila Oluwapelumi Adedayo",
+        "level": "200L",
+        "imageUrl": "/adefila.jpg"
       },
-    ],
-  },
+      {
+        "id": 7,
+        "name": "Abeeb Ayinla Raji",
+        "level": "100L",
+        "imageUrl": "/abeeb.jpg"
+      },
+      {
+        "id": 8,
+        "name": "Okeowo Abdullateef Opemipo",
+        "level": "100L",
+        "imageUrl": "/okeowo.jpg"
+      },
+      {
+        "id": 9,
+        "name": "Oloto Israel Okasime",
+        "level": "100L",
+        "imageUrl": "/oloto.jpg"
+      },
+      {
+        "id": 10,
+        "name": "Hamzat Aliyah Amoke",
+        "level": "100L",
+        "imageUrl": "/hamzat.jpg"
+      }
+    ]
+  }
 ];
 export async function GET() {
   return NextResponse.json(candidatesData);
