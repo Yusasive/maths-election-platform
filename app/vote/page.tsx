@@ -76,11 +76,11 @@ export default function VotingPage() {
       localStorage.getItem("mathsVoterData_v2") || "{}"
     ) as mathsVoterData;
 
-    // if (!storedmathsVoterData?.matricNumber) {
-    //   addNotification("error", "You must log in first!");
-    //   window.location.href = "/";
-    //   return;
-    // }
+    if (!storedmathsVoterData?.matricNumber) {
+      addNotification("error", "You must log in first!");
+      window.location.href = "/";
+      return;
+    }
 
     const hasVoted = localStorage.getItem("mathsVoteRecord_v2");
 

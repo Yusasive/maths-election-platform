@@ -1,20 +1,26 @@
 [
+  {
+    "position": "Social Director",
+    "allowMultiple": false,
+    "candidates": [
+      {
+        "id": 1,
+        "name": "Akeeb Abubakr Busayo",
+        "level": "400L",
+        "imageUrl": "/akeeb.jpg"
+      }
+    ]
+  },
 
   {
     "position": "Student Representative Councils {SRC}",
     "allowMultiple": true,
     "candidates": [
       {
-        "position": "Social Secretary",
-        "allowMultiple": false,
-        "candidates": [
-          {
-            "id": 11,
-            "name": "Akeeb Abubakr Busayo",
-            "level": "400L",
-            "imageUrl": "/akeeb.jpg"
-          }
-        ]
+        "id": 1,
+        "name": "Alabi Sodiq Olaniyi",
+        "level": "400L",
+        "imageUrl": "/alabi.jpg"
       },
       {
         "id": 2,
@@ -38,7 +44,7 @@
         "id": 5,
         "name": "Convenant Nwafor",
         "level": "200L",
-        "imageUrl": "/convenant.jpg"
+        "imageUrl": "/convenat.jpg"
       },
       {
         "id": 6,
@@ -48,27 +54,27 @@
       },
       {
         "id": 7,
-        "name": "Okeowo Abdullapteef Opemiposi",
+        "name": "Abeeb Ayinla Raji",
+        "level": "100L",
+        "imageUrl": "/abeeb.jpg"
+      },
+      {
+        "id": 8,
+        "name": "Okeowo Abdullateef Opemipo",
         "level": "100L",
         "imageUrl": "/okeowo.jpg"
       },
       {
-        "id": 8,
-        "name": "Oloto Isreal Okasime",
+        "id": 9,
+        "name": "Oloto Israel Okasime",
         "level": "100L",
         "imageUrl": "/oloto.jpg"
       },
       {
-        "id": 9,
+        "id": 10,
         "name": "Hamzat Aliyah Amoke",
         "level": "100L",
         "imageUrl": "/hamzat.jpg"
-      },
-      {
-        "id": 10,
-        "name": "Abeeb Ayinla Raji",
-        "level": "100L",
-        "imageUrl": "/abeeb.jpg"
       }
     ]
   }
