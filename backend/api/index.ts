@@ -3,7 +3,6 @@ import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
-import * as compression from 'compression';
 
 // Cached between Vercel warm invocations
 let cachedServer: any = null;
@@ -13,12 +12,14 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn'] });
 
-  app.use(compression());
+  const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
   app.enableCors({
     origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-      if (!origin || origin.startsWith('http://localhost:') || origin === allowedOrigin) {
+      if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: origin ${origin} not allowed`));

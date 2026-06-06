@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as compression from 'compression';
+import compression = require('compression');
 
 process.on('unhandledRejection', (reason) => {
   console.error('[unhandledRejection]', reason);
@@ -16,11 +16,14 @@ async function bootstrap() {
   // Compress all responses — reduces payload size ~70% for JSON
   app.use(compression());
 
-  const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (curl, Postman) or any localhost port in dev
-      if (!origin || origin.startsWith('http://localhost:') || origin === allowedOrigin) {
+      if (!origin || origin.startsWith('http://localhost:') || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: origin ${origin} not allowed`));
