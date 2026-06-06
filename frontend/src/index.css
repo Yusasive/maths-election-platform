@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'GeistSans';
+  src: url('/fonts/GeistVF.woff') format('woff');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'GeistMono';
+  src: url('/fonts/GeistMonoVF.woff') format('woff');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: 'GeistSans', Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Balloon animations for congratulations page */
+.balloon {
+  width: 40px;
+  height: 50px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 80% 80%;
+  position: absolute;
+  bottom: -100px;
+  animation: floatUp 4s ease-in-out infinite, pop 0.5s steps(4, end) forwards;
+}
+
+.balloon::after {
+  content: "";
+  width: 6px;
+  height: 40px;
+  background: currentColor;
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  90% {
+    transform: translateY(-500px) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-600px) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes pop {
+  0% { background-size: 100%; }
+  100% { background-size: 0%; }
+}
