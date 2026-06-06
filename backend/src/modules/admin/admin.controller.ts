@@ -2,15 +2,25 @@ import {
   Controller,
   Post,
   Get,
+  Put,
   Patch,
   Delete,
   Body,
   Param,
   Headers,
-  BadRequestException,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
+import {
+  SetupAdminDto,
+  UpdateProfileDto,
+  RegisterAdminDto,
+  LoginAdminDto,
+  DeclineAdminDto,
+  PaginationDto,
+  VoterPaginationDto,
+} from './dto/admin.dto';
 
 @Controller('admin')
 export class AdminController {
@@ -22,24 +32,18 @@ export class AdminController {
   }
 
   @Post('setup')
-  async setup(@Body() body: { email: string; password: string; name: string }) {
-    const { email, password, name } = body;
-    if (!email || !password || !name) throw new BadRequestException('All fields required');
-    return this.adminService.setup(email, password, name);
+  async setup(@Body() body: SetupAdminDto) {
+    return this.adminService.setup(body.email, body.password, body.name);
   }
 
   @Post('register')
-  async register(@Body() body: { email: string; password: string; name: string }) {
-    const { email, password, name } = body;
-    if (!email || !password || !name) throw new BadRequestException('All fields required');
-    return this.adminService.register(email, password, name);
+  async register(@Body() body: RegisterAdminDto) {
+    return this.adminService.register(body.email, body.password, body.name);
   }
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
-    const { email, password } = body;
-    if (!email || !password) throw new BadRequestException('Email and password required');
-    return this.adminService.login(email, password);
+  async login(@Body() body: LoginAdminDto) {
+    return this.adminService.login(body.email, body.password);
   }
 
   @Get('profile')
@@ -47,11 +51,23 @@ export class AdminController {
     return this.adminService.validateAdmin(auth);
   }
 
+  @Put('profile')
+  async updateProfile(
+    @Headers('authorization') auth: string,
+    @Body() body: UpdateProfileDto,
+  ) {
+    const admin = await this.adminService.validateAdmin(auth);
+    return this.adminService.updateProfile(admin._id.toString(), body);
+  }
+
   // Super admin endpoints
   @Get('super/admins')
-  async listAdmins(@Headers('authorization') auth: string) {
+  async listAdmins(
+    @Headers('authorization') auth: string,
+    @Query() query: PaginationDto,
+  ) {
     await this.adminService.validateSuperAdmin(auth);
-    return this.adminService.listAllAdmins();
+    return this.adminService.listAllAdmins(query.page, query.limit);
   }
 
   @Patch('super/admins/:id/approve')
@@ -63,7 +79,7 @@ export class AdminController {
   @Patch('super/admins/:id/decline')
   async decline(
     @Param('id') id: string,
-    @Body() body: { reason?: string },
+    @Body() body: DeclineAdminDto,
     @Headers('authorization') auth: string,
   ) {
     await this.adminService.validateSuperAdmin(auth);
@@ -81,10 +97,10 @@ export class AdminController {
   async getVoters(
     @Param('slug') slug: string,
     @Headers('authorization') auth: string,
+    @Query() query: VoterPaginationDto,
   ) {
-    const admin = await this.adminService.validateAdmin(auth);
-    // electionId is the slug here for simplicity
-    return this.adminService.getVoters(slug);
+    await this.adminService.validateAdmin(auth);
+    return this.adminService.getVoters(slug, query.page, query.limit);
   }
 
   @Delete('elections/:slug/voters/:matricNumber')

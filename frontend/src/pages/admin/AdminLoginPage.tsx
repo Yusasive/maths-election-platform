@@ -95,11 +95,6 @@ export default function AdminLoginPage() {
               Request Access
             </Link>
           </p>
-          <p className="text-center text-xs text-gray-400 mt-2">
-            <Link to="/super-admin/setup" className="hover:text-gray-600">
-              Super Admin Setup
-            </Link>
-          </p>
         </div>
 
         <p className="text-center mt-4">

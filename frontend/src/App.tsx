@@ -16,8 +16,8 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminCreateElectionPage from './pages/admin/AdminCreateElectionPage';
 import AdminElectionPage from './pages/admin/AdminElectionPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 
-import SuperAdminSetupPage from './pages/super-admin/SuperAdminSetupPage';
 import SuperAdminLayout from './pages/super-admin/SuperAdminLayout';
 import SuperAdminDashboardPage from './pages/super-admin/SuperAdminDashboardPage';
 import SuperAdminAdminsPage from './pages/super-admin/SuperAdminAdminsPage';
@@ -46,10 +46,10 @@ export default function App() {
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="elections/new" element={<AdminCreateElectionPage />} />
             <Route path="elections/:slug" element={<AdminElectionPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
           </Route>
 
           {/* Super admin routes */}
-          <Route path="/super-admin/setup" element={<SuperAdminSetupPage />} />
           <Route path="/super-admin" element={<SuperAdminLayout />}>
             <Route index element={<Navigate to="/super-admin/dashboard" replace />} />
             <Route path="dashboard" element={<SuperAdminDashboardPage />} />

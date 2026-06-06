@@ -1,0 +1,26 @@
+#!/bin/sh
+
+echo "Running pre-push checks..."
+
+echo ""
+echo "[1/2] Type-checking frontend..."
+cd frontend && npm run type-check
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Frontend TypeScript errors found. Fix them before pushing."
+  exit 1
+fi
+cd ..
+
+echo ""
+echo "[2/2] Type-checking backend..."
+cd backend && npm run type-check
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "Backend TypeScript errors found. Fix them before pushing."
+  exit 1
+fi
+cd ..
+
+echo ""
+echo "All checks passed. Pushing..."

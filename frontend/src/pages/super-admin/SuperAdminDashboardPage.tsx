@@ -21,7 +21,7 @@ export default function SuperAdminDashboardPage() {
       fetch(`${API_URL}/api/admin/super/admins`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
       fetch(`${API_URL}/api/elections/all`, { headers: { Authorization: `Bearer ${token}` } }).then((r) => r.json()),
     ])
-      .then(([a, e]) => { setAdmins(Array.isArray(a) ? a : []); setElections(Array.isArray(e) ? e : []); })
+      .then(([a, e]) => { setAdmins(Array.isArray(a) ? a : (a.data ?? [])); setElections(Array.isArray(e) ? e : []); })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

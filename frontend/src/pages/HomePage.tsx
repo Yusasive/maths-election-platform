@@ -115,14 +115,7 @@ export default function HomePage() {
       return;
     }
 
-<<<<<<< HEAD:frontend/src/pages/HomePage.tsx
     if (localStorage.getItem("mathsVoterData") && !localStorage.getItem("mathsVoteRecord")) {
-=======
-    if (
-      localStorage.getItem("mathsVoterData_v2") &&
-      !localStorage.getItem("mathsVoteRecord_v2")
-    ) {
->>>>>>> 0be7d29fe94aec1aec8884fa0b40bb9655297213:app/page.tsx
       addNotification("info", "You've logged in before. Proceed to vote.");
       window.location.href = "/vote";
       return;
@@ -172,12 +165,7 @@ export default function HomePage() {
         image: imageUrl,
       };
 
-<<<<<<< HEAD:frontend/src/pages/HomePage.tsx
       localStorage.setItem("mathsVoterData", JSON.stringify(mathsVoterData));
-=======
-      localStorage.setItem("mathsVoterData_v2", JSON.stringify(mathsVoterData));
-
->>>>>>> 0be7d29fe94aec1aec8884fa0b40bb9655297213:app/page.tsx
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {

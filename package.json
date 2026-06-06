@@ -8,9 +8,11 @@
     "dev:backend": "cd backend && npm run start:dev",
     "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
     "build:frontend": "cd frontend && npm run build",
-    "build:backend": "cd backend && npm run build"
+    "build:backend": "cd backend && npm run build",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "husky": "^9.1.7"
   }
 }

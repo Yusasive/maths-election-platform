@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -14,6 +15,8 @@ interface Election {
   votingStartTime: string;
   votingEndTime: string;
   createdAt: string;
+  voterCount?: number;
+  voteCount?: number;
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -30,6 +33,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminDashboardPage() {
+  usePageTitle('My Elections');
   const [elections, setElections] = useState<Election[]>([]);
   const [loading, setLoading] = useState(true);
   const { addNotification } = useNotification();
@@ -131,11 +135,29 @@ export default function AdminDashboardPage() {
               {e.description && (
                 <p className="text-sm text-gray-500 mb-3 line-clamp-1">{e.description}</p>
               )}
-              <div className="text-xs text-gray-400 space-y-0.5">
+              <div className="text-xs text-gray-400 space-y-0.5 mb-3">
                 <p>Voting: {new Date(e.votingStartTime).toLocaleDateString()} – {new Date(e.votingEndTime).toLocaleDateString()}</p>
-                <p>Created: {new Date(e.createdAt).toLocaleDateString()}</p>
               </div>
-              <div className="mt-4 flex items-center text-xs text-blue-600 font-medium">
+              <div className="flex items-center gap-4 py-2.5 border-t border-gray-50">
+                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span><strong className="text-gray-700">{e.voterCount ?? 0}</strong> registered</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-gray-500">
+                  <svg className="w-3.5 h-3.5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span><strong className="text-gray-700">{e.voteCount ?? 0}</strong> voted</span>
+                </div>
+                {(e.voterCount ?? 0) > 0 && (
+                  <span className="ml-auto text-xs text-purple-600 font-medium">
+                    {Math.round(((e.voteCount ?? 0) / (e.voterCount ?? 1)) * 100)}% turnout
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 flex items-center text-xs text-blue-600 font-medium">
                 Manage election
                 <svg className="w-3.5 h-3.5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

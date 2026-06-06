@@ -1,25 +1,23 @@
-import 'dotenv/config';
 import 'reflect-metadata';
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { AppModule } from './app.module';
+import { AppModule } from '../src/app.module';
 import * as compression from 'compression';
 
-process.on('unhandledRejection', (reason) => {
-  console.error('[unhandledRejection]', reason);
-  // Log but do NOT exit — let the MongoDB driver retry the connection
-});
+// Cached between Vercel warm invocations
+let cachedServer: any = null;
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  if (cachedServer) return cachedServer;
 
-  // Compress all responses — reduces payload size ~70% for JSON
+  const app = await NestFactory.create(AppModule, { logger: ['error', 'warn'] });
+
   app.use(compression());
 
   const allowedOrigin = process.env.FRONTEND_URL || 'http://localhost:5173';
   app.enableCors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin (curl, Postman) or any localhost port in dev
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin || origin.startsWith('http://localhost:') || origin === allowedOrigin) {
         callback(null, true);
       } else {
@@ -32,7 +30,6 @@ async function bootstrap() {
   });
 
   app.setGlobalPrefix('api');
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -41,8 +38,12 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 3001;
-  await app.listen(port);
-  console.log(`Backend running on http://localhost:${port}/api`);
+  await app.init();
+  cachedServer = app.getHttpAdapter().getInstance();
+  return cachedServer;
 }
-bootstrap();
+
+export default async (req: any, res: any) => {
+  const server = await bootstrap();
+  server(req, res);
+};

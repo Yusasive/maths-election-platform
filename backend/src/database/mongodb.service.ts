@@ -13,6 +13,7 @@ export class MongodbService implements OnModuleInit, OnModuleDestroy {
 
     this.client = new MongoClient(uri, {
       maxPoolSize: 10,
+      minPoolSize: 0,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
@@ -29,6 +30,22 @@ export class MongodbService implements OnModuleInit, OnModuleDestroy {
     this.client.on('error', (err) => this.logger.error('MongoDB client error', err.message));
 
     this.logger.log('Connected to MongoDB');
+    await this.createIndexes();
+  }
+
+  private async createIndexes() {
+    const db = this.db;
+    await Promise.all([
+      db.collection('admins').createIndex({ email: 1 }, { unique: true }),
+      db.collection('elections').createIndex({ slug: 1 }, { unique: true }),
+      db.collection('elections').createIndex({ adminId: 1 }),
+      db.collection('voters').createIndex({ electionSlug: 1, matricNumber: 1 }, { unique: true }),
+      db.collection('voters').createIndex({ electionSlug: 1 }),
+      db.collection('votes').createIndex({ electionSlug: 1, matricNumber: 1 }),
+      db.collection('positions').createIndex({ electionSlug: 1 }),
+      db.collection('candidates').createIndex({ positionId: 1 }),
+    ]);
+    this.logger.log('MongoDB indexes ensured');
   }
 
   async onModuleDestroy() {

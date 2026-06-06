@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -21,6 +22,10 @@ export default function VoterLoginPage() {
   const { addNotification } = useNotification();
 
   const [election, setElection] = useState<Election | null>(null);
+  usePageTitle(
+    election ? `Register — ${election.title}` : 'Register to Vote',
+    election ? { description: election.description, image: election.logoUrl } : undefined,
+  );
   const [loadingElection, setLoadingElection] = useState(true);
   const [formData, setFormData] = useState({ matricNumber: '', fullName: '', department: '', accessCode: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);

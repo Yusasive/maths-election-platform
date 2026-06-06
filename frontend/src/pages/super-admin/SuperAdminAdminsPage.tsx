@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNotification } from '../../context/NotificationContext';
 import ConfirmModal from '../../components/ConfirmModal';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -23,6 +24,7 @@ const statusConfig: Record<string, { label: string; badge: string }> = {
 };
 
 export default function SuperAdminAdminsPage() {
+  usePageTitle('Admin Management');
   const [admins, setAdmins] = useState<Admin[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<FilterTab>('pending');
@@ -35,7 +37,7 @@ export default function SuperAdminAdminsPage() {
   const fetchAdmins = () => {
     fetch(`${API_URL}/api/admin/super/admins`, { headers: { Authorization: `Bearer ${token}` } })
       .then((r) => r.json())
-      .then((d) => setAdmins(Array.isArray(d) ? d : []))
+      .then((d) => setAdmins(Array.isArray(d) ? d : (d.data ?? [])))
       .catch(() => addNotification('error', 'Failed to load admins'))
       .finally(() => setLoading(false));
   };

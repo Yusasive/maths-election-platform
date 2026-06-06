@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, Link, Outlet } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 interface AdminData {
   id: string;
   email: string;
   name: string;
   role: string;
   status: string;
+  avatarUrl?: string;
 }
 
 const navItems = [
@@ -29,6 +32,14 @@ const navItems = [
       )},
     ],
   },
+  {
+    label: 'Account',
+    items: [
+      { name: 'Settings', href: '/admin/settings', icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+      )},
+    ],
+  },
 ];
 
 export default function AdminLayout() {
@@ -37,6 +48,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Auth guard + fetch fresh profile (avatarUrl may not be in localStorage for existing sessions)
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     const admin = localStorage.getItem('adminData');
@@ -54,7 +66,29 @@ export default function AdminLayout() {
 
     setAdminData(parsed);
     setLoading(false);
-  }, [navigate]);
+
+    // Fetch fresh profile so avatar is always current
+    fetch(`${API_URL}/api/admin/profile`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((profile) => {
+        if (!profile) return;
+        const fresh: AdminData = {
+          ...parsed,
+          name: profile.name ?? parsed.name,
+          email: profile.email ?? parsed.email,
+          avatarUrl: profile.avatarUrl ?? undefined,
+        };
+        setAdminData(fresh);
+        localStorage.setItem('adminData', JSON.stringify(fresh));
+      })
+      .catch(() => {});
+  }, [navigate]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Re-read from localStorage on every navigation so settings changes appear instantly
+  useEffect(() => {
+    const admin = localStorage.getItem('adminData');
+    if (admin) setAdminData(JSON.parse(admin) as AdminData);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -86,7 +120,7 @@ export default function AdminLayout() {
             </div>
             <div>
               <p className="text-sm font-bold text-gray-800">Admin Panel</p>
-              <p className="text-xs text-gray-400">Maths Elections</p>
+              <p className="text-xs text-gray-400">Elections</p>
             </div>
           </div>
         </div>
@@ -117,20 +151,27 @@ export default function AdminLayout() {
 
         {/* User footer */}
         <div className="px-4 py-4 border-t border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-blue-700 font-semibold text-sm">{adminData?.name?.[0]?.toUpperCase()}</span>
+          <Link to="/admin/settings" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-full flex-shrink-0 overflow-hidden border border-gray-100">
+              {adminData?.avatarUrl ? (
+                <img src={adminData.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-700 font-semibold text-sm">{adminData?.name?.[0]?.toUpperCase()}</span>
+                </div>
+              )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-800 truncate">{adminData?.name}</p>
+              <p className="text-sm font-medium text-gray-800 truncate group-hover:text-blue-600 transition">{adminData?.name}</p>
               <p className="text-xs text-gray-400 truncate">{adminData?.email}</p>
             </div>
-            <button onClick={handleLogout} title="Logout" className="text-gray-400 hover:text-red-500 transition flex-shrink-0">
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
+          </Link>
+          <button onClick={handleLogout} title="Logout" aria-label="Logout" className="mt-2 w-full flex items-center gap-2 text-xs text-gray-400 hover:text-red-500 transition px-1">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Sign out
+          </button>
         </div>
       </aside>
 

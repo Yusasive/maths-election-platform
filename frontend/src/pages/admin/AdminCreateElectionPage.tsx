@@ -144,7 +144,7 @@ export default function AdminCreateElectionPage() {
           <label className="block text-sm font-semibold text-gray-700 mb-1.5">Election Title *</label>
           <input
             type="text"
-            placeholder="e.g. Maths Department Elections 2025"
+            placeholder="e.g. Student Union Elections 2025"
             className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
             value={form.title}
             onChange={handleTitleChange}
@@ -158,7 +158,7 @@ export default function AdminCreateElectionPage() {
             <span className="px-3 py-2.5 bg-gray-50 text-gray-400 text-sm border-r border-gray-200">/vote/</span>
             <input
               type="text"
-              placeholder="maths-elections-2025"
+              placeholder="student-elections-2025"
               className="flex-1 px-3 py-2.5 text-gray-700 text-sm focus:outline-none"
               value={form.slug}
               onChange={(e) => { setSlugManuallySet(true); setForm({ ...form, slug: autoSlug(e.target.value) }); }}

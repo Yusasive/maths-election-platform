@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useNotification } from '../context/NotificationContext';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -23,6 +24,7 @@ interface Position {
 interface Election {
   slug: string;
   title: string;
+  description?: string;
   logoUrl?: string;
   votingStartTime: string;
   votingEndTime: string;
@@ -34,6 +36,10 @@ export default function VotePage() {
   const { addNotification } = useNotification();
 
   const [election, setElection] = useState<Election | null>(null);
+  usePageTitle(
+    election ? `Vote — ${election.title}` : 'Cast Your Vote',
+    election ? { description: election.description, image: election.logoUrl } : undefined,
+  );
   const [positions, setPositions] = useState<Position[]>([]);
   const [selections, setSelections] = useState<Record<string, string | string[]>>({});
   const [voterData, setVoterData] = useState<{ matricNumber: string; fullName: string } | null>(null);
@@ -130,7 +136,15 @@ export default function VotePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || 'Failed to submit vote');
 
+      // Build human-readable receipt before navigating
+      const receipt = positions.map((p) => {
+        const sel = selections[p.id];
+        const ids = Array.isArray(sel) ? sel : sel ? [sel] : [];
+        const names = ids.map((id) => p.candidates.find((c) => c.id === id)?.name ?? id);
+        return { position: p.name, candidates: names };
+      });
       localStorage.setItem(`voted_${slug}`, 'true');
+      localStorage.setItem(`receipt_${slug}`, JSON.stringify(receipt));
       addNotification('success', 'Your vote has been recorded!');
       navigate(`/vote/${slug}/done`);
     } catch (err) {

@@ -2,9 +2,31 @@ import { Injectable, BadRequestException, NotFoundException, ForbiddenException 
 import { MongodbService } from '../../database/mongodb.service';
 import { ObjectId } from 'mongodb';
 
+interface CacheEntry { data: unknown; ts: number }
+
 @Injectable()
 export class ElectionsService {
   constructor(private readonly mongodb: MongodbService) {}
+
+  // Simple in-memory cache for high-read endpoints
+  private readonly cache = new Map<string, CacheEntry>();
+  private readonly SLUG_TTL = 30_000;   // election detail — 30 s
+  private readonly LIST_TTL = 15_000;   // public list — 15 s
+
+  private cacheGet(key: string, ttl: number): unknown | null {
+    const entry = this.cache.get(key);
+    if (entry && Date.now() - entry.ts < ttl) return entry.data;
+    return null;
+  }
+
+  private cacheSet(key: string, data: unknown) {
+    this.cache.set(key, { data, ts: Date.now() });
+  }
+
+  private cacheInvalidate(slug: string) {
+    this.cache.delete(`slug:${slug}`);
+    this.cache.delete('list:public');
+  }
 
   private slugify(text: string): string {
     return text
@@ -16,8 +38,11 @@ export class ElectionsService {
   }
 
   async listPublic() {
+    const cached = this.cacheGet('list:public', this.LIST_TTL);
+    if (cached) return cached;
+
     const db = this.mongodb.getDb();
-    return db
+    const result = await db
       .collection('elections')
       .find(
         { status: { $in: ['active', 'closed'] }, isPublic: { $ne: false } },
@@ -25,6 +50,9 @@ export class ElectionsService {
       )
       .sort({ createdAt: -1 })
       .toArray();
+
+    this.cacheSet('list:public', result);
+    return result;
   }
 
   async listAll() {
@@ -34,20 +62,37 @@ export class ElectionsService {
 
   async listByAdmin(adminId: string) {
     const db = this.mongodb.getDb();
-    return db
+    const elections = await db
       .collection('elections')
       .find({ adminId })
       .sort({ createdAt: -1 })
       .toArray();
+
+    // Attach mini stats (voter + vote count) to each election in parallel
+    const withStats = await Promise.all(
+      elections.map(async (e) => {
+        const [voterCount, voteCount] = await Promise.all([
+          db.collection('voters').countDocuments({ electionSlug: e.slug }),
+          db.collection('votes').countDocuments({ electionSlug: e.slug }),
+        ]);
+        return { ...e, voterCount, voteCount };
+      }),
+    );
+    return withStats;
   }
 
   async getBySlug(slug: string) {
+    const cached = this.cacheGet(`slug:${slug}`, this.SLUG_TTL);
+    if (cached) return cached;
+
     const db = this.mongodb.getDb();
     const election = await db.collection('elections').findOne({ slug });
     if (!election) throw new NotFoundException(`Election "${slug}" not found`);
-    // Never expose the raw access code — return a boolean flag instead
     const { accessCode, ...rest } = election;
-    return { ...rest, hasAccessCode: !!accessCode };
+    const result = { ...rest, hasAccessCode: !!accessCode };
+
+    this.cacheSet(`slug:${slug}`, result);
+    return result;
   }
 
   async create(adminId: string, body: {
@@ -88,6 +133,7 @@ export class ElectionsService {
       updatedAt: new Date(),
     });
 
+    this.cache.delete('list:public');
     return { message: 'Election created', electionId: result.insertedId, slug };
   }
 
@@ -120,6 +166,7 @@ export class ElectionsService {
     if (body.isPublic !== undefined) update.isPublic = body.isPublic;
 
     await db.collection('elections').updateOne({ slug }, { $set: update });
+    this.cacheInvalidate(slug);
     return { message: 'Election updated' };
   }
 
@@ -137,6 +184,7 @@ export class ElectionsService {
     await db.collection('candidates').deleteMany({ electionSlug: slug });
     await db.collection('voters').deleteMany({ electionSlug: slug });
     await db.collection('votes').deleteMany({ electionSlug: slug });
+    this.cacheInvalidate(slug);
 
     return { message: 'Election and all related data deleted' };
   }

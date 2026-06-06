@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useNotification } from '../../context/NotificationContext';
 import ConfirmModal from '../../components/ConfirmModal';
+import { usePageTitle } from '../../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -36,8 +37,10 @@ export default function AdminElectionPage() {
   const { addNotification } = useNotification();
   const token = localStorage.getItem('adminToken') || '';
 
+  const tabsRef = useRef<HTMLDivElement>(null);
   const [tab, setTab] = useState<Tab>('overview');
   const [election, setElection] = useState<Election | null>(null);
+  usePageTitle(election ? election.title : 'Election');
   const [stats, setStats] = useState<Stats | null>(null);
   const [positions, setPositions] = useState<Position[]>([]);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -113,7 +116,7 @@ export default function AdminElectionPage() {
   const fetchVoters = async () => {
     try {
       const r = await fetch(`${API_URL}/api/admin/elections/${slug}/voters`, { headers: { Authorization: `Bearer ${token}` } });
-      if (r.ok) setVoters(await r.json());
+      if (r.ok) { const d = await r.json(); setVoters(d.data ?? d); }
     } catch { /* optional */ }
   };
 
@@ -365,8 +368,8 @@ export default function AdminElectionPage() {
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-bold text-gray-800">Edit Position</h3>
-              <button onClick={() => setEditingPos(null)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <button onClick={() => setEditingPos(null)} className="text-gray-400 hover:text-gray-600" aria-label="Close edit position modal">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <form onSubmit={saveEditPos} className="space-y-4">
@@ -417,8 +420,8 @@ export default function AdminElectionPage() {
           <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-base font-bold text-gray-800">Edit Candidate</h3>
-              <button onClick={() => setEditingCand(null)} className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <button onClick={() => setEditingCand(null)} className="text-gray-400 hover:text-gray-600" aria-label="Close edit candidate modal">
+                <svg className="w-5 h-5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <form onSubmit={saveEditCand} className="space-y-4">
@@ -496,14 +499,28 @@ export default function AdminElectionPage() {
         </a>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-gray-100 mb-6 overflow-x-auto">
-        {tabs.map((t) => (
-          <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition border-b-2 -mb-px ${tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-            {t.label}
-          </button>
-        ))}
+      {/* Tabs — scrollable on mobile, select fallback for very small screens */}
+      <div className="mb-6">
+        {/* Mobile select */}
+        <select
+          className="sm:hidden w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+          value={tab}
+          onChange={(e) => setTab(e.target.value as Tab)}
+          aria-label="Select tab"
+        >
+          {tabs.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
+        </select>
+        {/* Desktop tabs */}
+        <div ref={tabsRef} className="hidden sm:flex gap-1 border-b border-gray-100 overflow-x-auto scrollbar-none">
+          {tabs.map((t) => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              aria-selected={tab === t.key}
+              role="tab"
+              className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition border-b-2 -mb-px ${tab === t.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Overview */}
@@ -586,13 +603,13 @@ export default function AdminElectionPage() {
               <div className="flex items-center gap-2">
                 <button onClick={() => openEditPos(p)}
                   className="text-gray-400 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg"
-                  title="Edit">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                  aria-label={`Edit position ${p.name}`}>
+                  <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                 </button>
                 <button onClick={() => deletePosition(p._id, p.name)}
                   className="text-gray-400 hover:text-red-500 transition p-1.5 hover:bg-red-50 rounded-lg"
-                  title="Delete">
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                  aria-label={`Delete position ${p.name}`}>
+                  <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
               </div>
             </div>
@@ -676,13 +693,13 @@ export default function AdminElectionPage() {
                       <div className="flex items-center gap-1.5">
                         <button onClick={() => openEditCand(c)}
                           className="text-gray-400 hover:text-blue-600 transition p-1.5 hover:bg-blue-50 rounded-lg"
-                          title="Edit">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                          aria-label={`Edit candidate ${c.name}`}>
+                          <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                         </button>
                         <button onClick={() => deleteCandidate(c._id, c.name)}
                           className="text-gray-400 hover:text-red-500 transition p-1.5 hover:bg-red-50 rounded-lg"
-                          title="Delete">
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          aria-label={`Delete candidate ${c.name}`}>
+                          <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                         </button>
                       </div>
                     </div>
@@ -719,8 +736,9 @@ export default function AdminElectionPage() {
                       {v.hasVoted ? 'Voted' : 'Not voted'}
                     </span>
                     <button onClick={() => deleteVoter(v.matricNumber, v.fullName)}
-                      className="text-gray-300 hover:text-red-500 transition p-1 hover:bg-red-50 rounded-lg">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                      className="text-gray-300 hover:text-red-500 transition p-1 hover:bg-red-50 rounded-lg"
+                      aria-label={`Remove voter ${v.fullName}`}>
+                      <svg className="w-4 h-4" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     </button>
                   </div>
                 </div>
@@ -772,11 +790,27 @@ export default function AdminElectionPage() {
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1.5 block">Status</label>
               <select className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                value={settingsForm.status} onChange={(e) => setSettingsForm({ ...settingsForm, status: e.target.value })}>
+                value={settingsForm.status}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  if (next === 'closed' && election?.status !== 'closed') {
+                    askConfirm(
+                      'Close Election',
+                      'Closing this election will permanently stop voting. Voters will no longer be able to register or cast votes. Are you sure?',
+                      () => { setSettingsForm((f) => ({ ...f, status: 'closed' })); setConfirm(defaultConfirm); },
+                      'warning',
+                    );
+                  } else {
+                    setSettingsForm({ ...settingsForm, status: next });
+                  }
+                }}>
                 <option value="draft">Draft</option>
                 <option value="active">Active</option>
                 <option value="closed">Closed</option>
               </select>
+              {settingsForm.status === 'closed' && election?.status !== 'closed' && (
+                <p className="text-xs text-amber-600 mt-1">This change will permanently close voting when saved.</p>
+              )}
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>

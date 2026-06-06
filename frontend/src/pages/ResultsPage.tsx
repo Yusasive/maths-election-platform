@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { usePageTitle } from '../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
@@ -19,7 +20,7 @@ interface PositionResult {
 }
 
 interface ElectionResults {
-  election: { slug: string; title: string; status: string };
+  election: { slug: string; title: string; description?: string; logoUrl?: string; status: string };
   totalVoters: number;
   totalVotesCast: number;
   results: PositionResult[];
@@ -30,6 +31,11 @@ export default function ResultsPage() {
   const [data, setData] = useState<ElectionResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  usePageTitle(
+    data ? `Results — ${data.election.title}` : 'Election Results',
+    data ? { description: data.election.description, image: data.election.logoUrl } : undefined,
+  );
 
   useEffect(() => {
     if (!slug) return;
