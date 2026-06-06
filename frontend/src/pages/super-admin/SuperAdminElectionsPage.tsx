@@ -69,13 +69,13 @@ export default function SuperAdminElectionsPage() {
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         {elections.map((e, i) => (
-          <div key={e._id} className={`px-5 py-4 flex items-center justify-between gap-4 ${i > 0 ? 'border-t border-gray-50' : ''}`}>
+          <div key={e._id} className={`px-4 sm:px-5 py-4 flex items-start sm:items-center gap-3 ${i > 0 ? 'border-t border-gray-50' : ''}`}>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <Link
                   to={`/vote/${e.slug}`}
                   target="_blank"
-                  className="font-semibold text-gray-800 hover:text-indigo-600 transition truncate"
+                  className="font-semibold text-gray-800 hover:text-indigo-600 transition"
                 >
                   {e.title}
                 </Link>
@@ -83,12 +83,12 @@ export default function SuperAdminElectionsPage() {
                   {e.status}
                 </span>
               </div>
-              <p className="text-xs text-gray-400 font-mono mt-0.5">/vote/{e.slug}</p>
+              <p className="text-xs text-gray-400 font-mono mt-0.5 truncate">/vote/{e.slug}</p>
               <p className="text-xs text-gray-400 mt-0.5">
                 {new Date(e.votingStartTime).toLocaleDateString()} – {new Date(e.votingEndTime).toLocaleDateString()}
               </p>
             </div>
-            <div className="flex gap-2 flex-shrink-0">
+            <div className="flex-shrink-0">
               <a
                 href={`/vote/${e.slug}/results`}
                 target="_blank"

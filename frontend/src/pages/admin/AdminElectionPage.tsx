@@ -476,27 +476,31 @@ export default function AdminElectionPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-start gap-3 mb-6">
-        <Link to="/admin/dashboard" className="mt-1 text-gray-400 hover:text-gray-600">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-        </Link>
-        <div className="flex-1 min-w-0 flex items-center gap-3">
-          {election.logoUrl && <img src={election.logoUrl} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-gray-100" />}
-          <div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <h1 className="text-2xl font-bold text-gray-800 truncate">{election.title}</h1>
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${statusColor[election.status] || 'bg-gray-100 text-gray-500'}`}>
-                {election.status.charAt(0).toUpperCase() + election.status.slice(1)}
-              </span>
+      <div className="mb-6">
+        <div className="flex items-start gap-3">
+          <Link to="/admin/dashboard" className="mt-1 flex-shrink-0 text-gray-400 hover:text-gray-600">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+          </Link>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start gap-3 flex-wrap">
+              {election.logoUrl && <img src={election.logoUrl} alt="" className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-gray-100 mt-0.5" />}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-800 break-words">{election.title}</h1>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${statusColor[election.status] || 'bg-gray-100 text-gray-500'}`}>
+                    {election.status.charAt(0).toUpperCase() + election.status.slice(1)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-400 mt-0.5 font-mono">/{election.slug}</p>
+              </div>
             </div>
-            <p className="text-sm text-gray-400 mt-0.5 font-mono">/{election.slug}</p>
           </div>
+          <a href={`/vote/${election.slug}`} target="_blank" rel="noopener noreferrer"
+            className="flex-shrink-0 text-sm border border-gray-200 hover:border-blue-300 text-gray-600 hover:text-blue-600 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+            <span className="hidden sm:inline">Voter Page</span>
+          </a>
         </div>
-        <a href={`/vote/${election.slug}`} target="_blank" rel="noopener noreferrer"
-          className="flex-shrink-0 text-sm border border-gray-200 hover:border-blue-300 text-gray-600 hover:text-blue-600 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-          Voter Page
-        </a>
       </div>
 
       {/* Tabs — scrollable on mobile, select fallback for very small screens */}
@@ -542,9 +546,9 @@ export default function AdminElectionPage() {
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
             <h3 className="font-semibold text-gray-700 mb-3">Election Details</h3>
             <dl className="space-y-2 text-sm">
-              {election.description && <div className="flex gap-2"><dt className="text-gray-400 w-36">Description:</dt><dd className="text-gray-700">{election.description}</dd></div>}
-              <div className="flex gap-2"><dt className="text-gray-400 w-36">Voting opens:</dt><dd className="text-gray-700">{new Date(election.votingStartTime).toLocaleString()}</dd></div>
-              <div className="flex gap-2"><dt className="text-gray-400 w-36">Voting closes:</dt><dd className="text-gray-700">{new Date(election.votingEndTime).toLocaleString()}</dd></div>
+              {election.description && <div className="flex flex-col sm:flex-row sm:gap-2"><dt className="text-gray-400 sm:w-36 font-medium sm:font-normal">Description:</dt><dd className="text-gray-700">{election.description}</dd></div>}
+              <div className="flex flex-col sm:flex-row sm:gap-2"><dt className="text-gray-400 sm:w-36 font-medium sm:font-normal">Voting opens:</dt><dd className="text-gray-700">{new Date(election.votingStartTime).toLocaleString()}</dd></div>
+              <div className="flex flex-col sm:flex-row sm:gap-2"><dt className="text-gray-400 sm:w-36 font-medium sm:font-normal">Voting closes:</dt><dd className="text-gray-700">{new Date(election.votingEndTime).toLocaleString()}</dd></div>
             </dl>
           </div>
           <Link to={`/vote/${election.slug}/results`} target="_blank"
@@ -726,13 +730,13 @@ export default function AdminElectionPage() {
           ) : (
             <div className="divide-y divide-gray-50">
               {voters.map((v) => (
-                <div key={v._id} className="px-5 py-3 flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">{v.fullName}</p>
-                    <p className="text-xs text-gray-400">{v.matricNumber} · {v.department}</p>
+                <div key={v._id} className="px-4 sm:px-5 py-3 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{v.fullName}</p>
+                    <p className="text-xs text-gray-400 truncate">{v.matricNumber} · {v.department}</p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${v.hasVoted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${v.hasVoted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
                       {v.hasVoted ? 'Voted' : 'Not voted'}
                     </span>
                     <button onClick={() => deleteVoter(v.matricNumber, v.fullName)}

@@ -56,9 +56,9 @@ export default function SuperAdminDashboardPage() {
 
       {/* Pending Admins Alert */}
       {pending.length > 0 && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6 flex items-start sm:items-center justify-between gap-3">
+          <div className="flex items-start sm:items-center gap-3">
+            <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
               <svg className="w-4 h-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -67,7 +67,7 @@ export default function SuperAdminDashboardPage() {
               {pending.length} admin registration{pending.length > 1 ? 's are' : ' is'} waiting for your approval
             </p>
           </div>
-          <Link to="/super-admin/admins" className="text-sm font-semibold text-yellow-700 hover:text-yellow-900">
+          <Link to="/super-admin/admins" className="flex-shrink-0 text-sm font-semibold text-yellow-700 hover:text-yellow-900">
             Review
           </Link>
         </div>
@@ -84,12 +84,12 @@ export default function SuperAdminDashboardPage() {
         ) : (
           <div className="divide-y divide-gray-50">
             {elections.slice(0, 5).map((e) => (
-              <div key={e._id} className="px-5 py-3 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-800">{e.title}</p>
-                  <p className="text-xs text-gray-400 font-mono">/{e.slug}</p>
+              <div key={e._id} className="px-4 sm:px-5 py-3 flex items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-800 truncate">{e.title}</p>
+                  <p className="text-xs text-gray-400 font-mono truncate">/{e.slug}</p>
                 </div>
-                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                <span className={`flex-shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full ${
                   e.status === 'active' ? 'bg-green-100 text-green-700' :
                   e.status === 'draft' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'
                 }`}>
