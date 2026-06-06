@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, RequestMethod } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 
 // Cached between Vercel warm invocations
@@ -30,7 +30,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('api', { exclude: [{ path: '/', method: RequestMethod.GET }] });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
