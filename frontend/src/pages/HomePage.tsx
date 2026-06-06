@@ -110,12 +110,19 @@ export default function HomePage() {
   };
 
   const handleLogin = async () => {
-    if (localStorage.getItem("mathsVoteRecord") === "true") {
+    if (localStorage.getItem("mathsVoteRecord_v2") === "true") {
       addNotification("info", "You have already voted on this device.");
       return;
     }
 
+<<<<<<< HEAD:frontend/src/pages/HomePage.tsx
     if (localStorage.getItem("mathsVoterData") && !localStorage.getItem("mathsVoteRecord")) {
+=======
+    if (
+      localStorage.getItem("mathsVoterData_v2") &&
+      !localStorage.getItem("mathsVoteRecord_v2")
+    ) {
+>>>>>>> 0be7d29fe94aec1aec8884fa0b40bb9655297213:app/page.tsx
       addNotification("info", "You've logged in before. Proceed to vote.");
       window.location.href = "/vote";
       return;
@@ -165,19 +172,24 @@ export default function HomePage() {
         image: imageUrl,
       };
 
+<<<<<<< HEAD:frontend/src/pages/HomePage.tsx
       localStorage.setItem("mathsVoterData", JSON.stringify(mathsVoterData));
+=======
+      localStorage.setItem("mathsVoterData_v2", JSON.stringify(mathsVoterData));
+
+>>>>>>> 0be7d29fe94aec1aec8884fa0b40bb9655297213:app/page.tsx
       addNotification("success", "Login successful! Proceed to vote.");
       window.location.href = "/vote";
     } catch (error) {
-      console.error("Login error:", error);
+      // console.error("Login error:", error);
       addNotification("error", "An error occurred while logging in.");
     }
-  };
+  }; 
 
   return (
     <main className="flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-3xl md:text-4xl text-blue-500 font-bold pt-12 text-center">
-        Department of Mathematics Voting Platform
+        Department of Mathematics Bye-Election Voting Platform
       </h1>
       <a
         href="/admin/login"
