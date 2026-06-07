@@ -96,7 +96,7 @@ export class AdminService {
     const token = jwt.sign(
       { sub: admin._id.toString(), role: admin.role, email: admin.email },
       jwtSecret(),
-      { expiresIn: '8h' },
+      { expiresIn: '7d' },
     );
 
     return {

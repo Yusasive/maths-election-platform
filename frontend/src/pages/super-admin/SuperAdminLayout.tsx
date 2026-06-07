@@ -44,6 +44,22 @@ export default function SuperAdminLayout() {
       return;
     }
 
+    // Client-side expiry check
+    try {
+      const { exp } = JSON.parse(atob(token.split('.')[1]));
+      if (exp * 1000 < Date.now()) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminData');
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+    } catch {
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminData');
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+
     const parsed: AdminData = JSON.parse(admin);
     if (parsed.role !== 'super_admin') {
       navigate('/admin/dashboard', { replace: true });

@@ -54,6 +54,23 @@ export default function AdminLayout() {
       return;
     }
 
+    // Client-side expiry check — avoids a round trip when the token is clearly stale
+    try {
+      const { exp } = JSON.parse(atob(token.split('.')[1]));
+      if (exp * 1000 < Date.now()) {
+        localStorage.removeItem('adminToken');
+        localStorage.removeItem('adminData');
+        navigate('/admin/login', { replace: true });
+        return;
+      }
+    } catch {
+      // Malformed token — treat as expired
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminData');
+      navigate('/admin/login', { replace: true });
+      return;
+    }
+
     const parsed: AdminData = JSON.parse(admin);
     if (parsed.role === 'super_admin') {
       navigate('/super-admin/dashboard', { replace: true });
@@ -65,7 +82,16 @@ export default function AdminLayout() {
 
     // Fetch fresh profile so avatar is always current
     fetch(`${API_URL}/api/admin/profile`, { headers: { Authorization: `Bearer ${token}` } })
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (r.status === 401) {
+          // Token rejected by server — clear session and redirect
+          localStorage.removeItem('adminToken');
+          localStorage.removeItem('adminData');
+          navigate('/admin/login', { replace: true });
+          return null;
+        }
+        return r.ok ? r.json() : null;
+      })
       .then((profile) => {
         if (!profile) return;
         const fresh: AdminData = {
