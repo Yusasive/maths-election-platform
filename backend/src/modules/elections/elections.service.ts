@@ -68,17 +68,33 @@ export class ElectionsService {
       .sort({ createdAt: -1 })
       .toArray();
 
-    // Attach mini stats (voter + vote count) to each election in parallel
-    const withStats = await Promise.all(
-      elections.map(async (e) => {
-        const [voterCount, voteCount] = await Promise.all([
-          db.collection('voters').countDocuments({ electionSlug: e.slug }),
-          db.collection('votes').countDocuments({ electionSlug: e.slug }),
-        ]);
-        return { ...e, voterCount, voteCount };
-      }),
-    );
-    return withStats;
+    if (elections.length === 0) return [];
+
+    const slugs = elections.map((e) => e.slug);
+
+    // Single aggregation per collection instead of one countDocuments per election
+    const [voterCounts, voteCounts] = await Promise.all([
+      db.collection('voters').aggregate([
+        { $match: { electionSlug: { $in: slugs } } },
+        { $group: { _id: '$electionSlug', count: { $sum: 1 } } },
+      ]).toArray(),
+      db.collection('votes').aggregate([
+        { $match: { electionSlug: { $in: slugs } } },
+        { $group: { _id: '$electionSlug', count: { $sum: 1 } } },
+      ]).toArray(),
+    ]);
+
+    const voterMap: Record<string, number> = {};
+    for (const { _id, count } of voterCounts) voterMap[_id] = count;
+
+    const voteMap: Record<string, number> = {};
+    for (const { _id, count } of voteCounts) voteMap[_id] = count;
+
+    return elections.map((e) => ({
+      ...e,
+      voterCount: voterMap[e.slug] ?? 0,
+      voteCount: voteMap[e.slug] ?? 0,
+    }));
   }
 
   async getBySlug(slug: string) {
@@ -127,6 +143,7 @@ export class ElectionsService {
       status: body.status === 'draft' ? 'draft' : 'active',
       accessCode: body.accessCode?.trim() || '',
       isPublic: body.isPublic !== false,
+      showLiveResults: true,
       votingStartTime: new Date(votingStartTime),
       votingEndTime: new Date(votingEndTime),
       createdAt: new Date(),
@@ -144,6 +161,7 @@ export class ElectionsService {
     status?: string;
     accessCode?: string;
     isPublic?: boolean;
+    showLiveResults?: boolean;
     votingStartTime?: string;
     votingEndTime?: string;
   }) {
@@ -164,6 +182,7 @@ export class ElectionsService {
     if (body.votingEndTime !== undefined) update.votingEndTime = new Date(body.votingEndTime);
     if (body.accessCode !== undefined) update.accessCode = body.accessCode.trim();
     if (body.isPublic !== undefined) update.isPublic = body.isPublic;
+    if (body.showLiveResults !== undefined) update.showLiveResults = body.showLiveResults;
 
     await db.collection('elections').updateOne({ slug }, { $set: update });
     this.cacheInvalidate(slug);

@@ -10,6 +10,7 @@ interface CandidateResult {
   level: string;
   imageUrl: string;
   votes: number;
+  nickname?: string;
 }
 
 interface PositionResult {
@@ -20,10 +21,11 @@ interface PositionResult {
 }
 
 interface ElectionResults {
-  election: { slug: string; title: string; description?: string; logoUrl?: string; status: string };
+  election: { slug: string; title: string; description?: string; logoUrl?: string; status: string; showLiveResults: boolean };
   totalVoters: number;
   totalVotesCast: number;
   results: PositionResult[];
+  resultsHidden?: boolean;
 }
 
 export default function ResultsPage() {
@@ -65,6 +67,32 @@ export default function ResultsPage() {
           <Link to="/" className="text-blue-600 hover:underline mt-2 block">Back to elections</Link>
         </div>
       </div>
+    );
+  }
+
+  if (data.resultsHidden) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <header className="bg-white shadow-sm">
+          <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+            <Link to="/" className="text-sm text-gray-500 hover:text-blue-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              All Elections
+            </Link>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700">active</span>
+          </div>
+        </header>
+        <div className="max-w-3xl mx-auto px-6 py-20 text-center">
+          <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-5">
+            <svg className="w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+            </svg>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{data.election.title}</h1>
+          <p className="text-gray-500 text-sm mb-1">Results are not available yet</p>
+          <p className="text-gray-400 text-xs">The election organiser has not enabled live results. Check back after voting closes.</p>
+        </div>
+      </main>
     );
   }
 
@@ -121,7 +149,11 @@ export default function ResultsPage() {
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-center mb-1">
-                            <p className="text-sm font-medium text-gray-800 truncate">{c.name} <span className="text-gray-400 text-xs">({c.level})</span></p>
+                            <p className="text-sm font-medium text-gray-800 truncate">
+                              {c.name}
+                              {c.nickname && <span className="text-blue-500 text-xs font-medium ml-1">"{c.nickname}"</span>}
+                              <span className="text-gray-400 text-xs ml-1">({c.level})</span>
+                            </p>
                             <p className="text-sm font-bold text-gray-600 ml-2 flex-shrink-0">{c.votes} votes ({pct}%)</p>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-2">

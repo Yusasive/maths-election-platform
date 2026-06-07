@@ -13,7 +13,7 @@ export class MongodbService implements OnModuleInit, OnModuleDestroy {
 
     this.client = new MongoClient(uri, {
       maxPoolSize: 10,
-      minPoolSize: 0,
+      minPoolSize: 2,
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
@@ -42,6 +42,7 @@ export class MongodbService implements OnModuleInit, OnModuleDestroy {
       db.collection('voters').createIndex({ electionSlug: 1, matricNumber: 1 }, { unique: true }),
       db.collection('voters').createIndex({ electionSlug: 1 }),
       db.collection('votes').createIndex({ electionSlug: 1, matricNumber: 1 }),
+      db.collection('votes').createIndex({ electionSlug: 1 }),
       db.collection('positions').createIndex({ electionSlug: 1 }),
       db.collection('candidates').createIndex({ positionId: 1 }),
     ]);

@@ -10,11 +10,11 @@ type Tab = 'overview' | 'positions' | 'candidates' | 'voters' | 'settings';
 
 interface Election {
   _id: string; slug: string; title: string; description: string; logoUrl?: string;
-  status: string; hasAccessCode?: boolean; isPublic?: boolean;
+  status: string; hasAccessCode?: boolean; isPublic?: boolean; showLiveResults?: boolean;
   votingStartTime: string; votingEndTime: string;
 }
 interface Position { _id: string; name: string; allowMultiple: boolean; maxVotes: number; order: number; }
-interface Candidate { _id: string; positionId: string; name: string; level: string; imageUrl: string; }
+interface Candidate { _id: string; positionId: string; name: string; level: string; imageUrl: string; nickname?: string; }
 interface Voter { _id: string; matricNumber: string; fullName: string; department: string; hasVoted: boolean; createdAt: string; }
 interface Stats { voters: number; votes: number; candidates: number; positions: number; turnout: number; }
 
@@ -58,14 +58,14 @@ export default function AdminElectionPage() {
   const [savingPos, setSavingPos] = useState(false);
 
   // Add candidate
-  const [newCand, setNewCand] = useState({ positionId: '', name: '', level: '', imageUrl: '' });
+  const [newCand, setNewCand] = useState({ positionId: '', name: '', level: '', imageUrl: '', nickname: '' });
   const [candImageFile, setCandImageFile] = useState<File | null>(null);
   const [candImagePreview, setCandImagePreview] = useState<string | null>(null);
   const [addingCand, setAddingCand] = useState(false);
 
   // Edit candidate modal
   const [editingCand, setEditingCand] = useState<Candidate | null>(null);
-  const [editCandForm, setEditCandForm] = useState({ name: '', level: '', imageUrl: '' });
+  const [editCandForm, setEditCandForm] = useState({ name: '', level: '', imageUrl: '', nickname: '' });
   const [editCandImageFile, setEditCandImageFile] = useState<File | null>(null);
   const [editCandPreview, setEditCandPreview] = useState<string | null>(null);
   const [savingCand, setSavingCand] = useState(false);
@@ -73,7 +73,7 @@ export default function AdminElectionPage() {
   // Settings form
   const [settingsForm, setSettingsForm] = useState({
     title: '', description: '', status: '', logoUrl: '',
-    accessCode: '', isPublic: true,
+    accessCode: '', isPublic: true, showLiveResults: true,
     votingStartTime: '', votingEndTime: '',
   });
   const [settingsLogoFile, setSettingsLogoFile] = useState<File | null>(null);
@@ -99,6 +99,7 @@ export default function AdminElectionPage() {
         logoUrl: el.logoUrl || '',
         accessCode: '',
         isPublic: el.isPublic !== false,
+        showLiveResults: el.showLiveResults !== false,
         votingStartTime: toLocalValue(el.votingStartTime),
         votingEndTime: toLocalValue(el.votingEndTime),
       });
@@ -213,7 +214,7 @@ export default function AdminElectionPage() {
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.message);
-      setNewCand({ positionId: '', name: '', level: '', imageUrl: '' });
+      setNewCand({ positionId: '', name: '', level: '', imageUrl: '', nickname: '' });
       setCandImageFile(null);
       setCandImagePreview(null);
       await fetchAll();
@@ -224,7 +225,7 @@ export default function AdminElectionPage() {
 
   const openEditCand = (c: Candidate) => {
     setEditingCand(c);
-    setEditCandForm({ name: c.name, level: c.level, imageUrl: c.imageUrl });
+    setEditCandForm({ name: c.name, level: c.level, imageUrl: c.imageUrl, nickname: c.nickname ?? '' });
     setEditCandPreview(c.imageUrl);
     setEditCandImageFile(null);
   };
@@ -292,6 +293,7 @@ export default function AdminElectionPage() {
           ...(settingsForm.accessCode ? { accessCode: settingsForm.accessCode } : {}),
           votingStartTime: new Date(settingsForm.votingStartTime).toISOString(),
           votingEndTime: new Date(settingsForm.votingEndTime).toISOString(),
+          showLiveResults: settingsForm.showLiveResults,
         }),
       });
       const d = await r.json();
@@ -441,6 +443,16 @@ export default function AdminElectionPage() {
                   className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={editCandForm.level}
                   onChange={(e) => setEditCandForm({ ...editCandForm, level: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Nickname <span className="text-gray-400 text-xs font-normal">(optional)</span></label>
+                <input
+                  type="text"
+                  placeholder='e.g. "The Lion"'
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={editCandForm.nickname}
+                  onChange={(e) => setEditCandForm({ ...editCandForm, nickname: e.target.value })}
                 />
               </div>
               <div>
@@ -655,6 +667,12 @@ export default function AdminElectionPage() {
                       value={newCand.level} onChange={(e) => setNewCand({ ...newCand, level: e.target.value })} />
                   </div>
                   <div>
+                    <label className="text-xs font-medium text-gray-500 mb-1 block">Nickname <span className="text-gray-400 font-normal">(optional)</span></label>
+                    <input type="text" placeholder='e.g. "The Lion"'
+                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={newCand.nickname} onChange={(e) => setNewCand({ ...newCand, nickname: e.target.value })} />
+                  </div>
+                  <div>
                     <label className="text-xs font-medium text-gray-500 mb-1 block">Photo</label>
                     <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition text-sm text-gray-500">
                       {candImagePreview
@@ -691,7 +709,7 @@ export default function AdminElectionPage() {
                           onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.png'; }} />
                         <div>
                           <p className="text-sm font-medium text-gray-800">{c.name}</p>
-                          <p className="text-xs text-gray-400">{c.level}</p>
+                          <p className="text-xs text-gray-400">{c.level}{c.nickname ? ` · "${c.nickname}"` : ''}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -879,6 +897,30 @@ export default function AdminElectionPage() {
                   {settingsForm.isPublic ? 'Visible on the public elections page' : 'Hidden — only accessible via direct link'}
                 </span>
               </label>
+            </div>
+
+            {/* Live results toggle */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Live Results</label>
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <div
+                  onClick={() => setSettingsForm({ ...settingsForm, showLiveResults: !settingsForm.showLiveResults })}
+                  className={`relative w-11 h-6 rounded-full transition-colors ${settingsForm.showLiveResults ? 'bg-green-500' : 'bg-gray-200'}`}
+                >
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settingsForm.showLiveResults ? 'translate-x-6' : 'translate-x-1'}`} />
+                </div>
+                <span className="text-sm text-gray-600">
+                  {settingsForm.showLiveResults
+                    ? 'Voters can view results while voting is ongoing'
+                    : 'Results are hidden until you turn this on'}
+                </span>
+              </label>
+              {!settingsForm.showLiveResults && (
+                <p className="text-xs text-amber-600 mt-1.5 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  The public results page will show a "results not available" message.
+                </p>
+              )}
             </div>
 
             <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition">

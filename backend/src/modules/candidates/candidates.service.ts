@@ -27,6 +27,7 @@ export class CandidatesService {
     name: string;
     level: string;
     imageUrl: string;
+    nickname?: string;
   }) {
     const { positionId, name, level, imageUrl } = body;
     if (!positionId || !name || !level || !imageUrl) {
@@ -40,13 +41,14 @@ export class CandidatesService {
       name,
       level,
       imageUrl,
+      ...(body.nickname?.trim() ? { nickname: body.nickname.trim() } : {}),
       createdAt: new Date(),
     });
 
     return { message: 'Candidate added', candidateId: result.insertedId };
   }
 
-  async update(id: string, body: { name?: string; level?: string; imageUrl?: string }) {
+  async update(id: string, body: { name?: string; level?: string; imageUrl?: string; nickname?: string }) {
     if (!ObjectId.isValid(id)) throw new BadRequestException('Invalid candidate ID');
     const db = this.mongodb.getDb();
 
@@ -54,6 +56,7 @@ export class CandidatesService {
     if (body.name !== undefined) update.name = body.name;
     if (body.level !== undefined) update.level = body.level;
     if (body.imageUrl !== undefined) update.imageUrl = body.imageUrl;
+    if (body.nickname !== undefined) update.nickname = body.nickname.trim();
 
     const result = await db.collection('candidates').updateOne(
       { _id: new ObjectId(id) },

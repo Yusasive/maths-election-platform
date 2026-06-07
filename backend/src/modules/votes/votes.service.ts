@@ -29,9 +29,6 @@ export class VotesService {
     if (!voter) throw new BadRequestException('You are not registered for this election');
     if (voter.hasVoted) throw new BadRequestException('You have already voted in this election');
 
-    const alreadyVoted = await db.collection('votes').findOne({ electionSlug, matricNumber: normalized });
-    if (alreadyVoted) throw new BadRequestException('You have already voted in this election');
-
     await db.collection('votes').insertOne({
       electionSlug,
       matricNumber: normalized,

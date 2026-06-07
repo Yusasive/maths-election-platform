@@ -11,6 +11,7 @@ interface Candidate {
   name: string;
   level: string;
   imageUrl: string;
+  nickname?: string;
 }
 
 interface Position {
@@ -280,6 +281,9 @@ export default function VotePage() {
                       />
                       <div>
                         <p className="text-sm font-semibold text-gray-800">{candidate.name}</p>
+                        {candidate.nickname && (
+                          <p className="text-xs text-blue-500 font-medium">"{candidate.nickname}"</p>
+                        )}
                         <p className="text-xs text-gray-400">{candidate.level}</p>
                       </div>
                     </label>
