@@ -14,6 +14,7 @@ export class AuthController {
       body.matricNumber,
       body.fullName,
       body.department,
+      body.level,
       body.image,
       body.accessCode,
     );

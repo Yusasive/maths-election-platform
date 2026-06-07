@@ -10,6 +10,7 @@ export class AuthService {
     matricNumber: string,
     fullName: string,
     department: string,
+    level: string,
     image: string,
     accessCode?: string,
   ) {
@@ -41,6 +42,7 @@ export class AuthService {
       matricNumber: normalized,
       fullName,
       department,
+      level,
       image,
       hasVoted: false,
       createdAt: new Date(),

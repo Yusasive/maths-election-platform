@@ -15,6 +15,10 @@ export class RegisterVoterDto {
 
   @IsString()
   @MinLength(1)
+  level: string;
+
+  @IsString()
+  @MinLength(1)
   image: string;
 
   @IsOptional()

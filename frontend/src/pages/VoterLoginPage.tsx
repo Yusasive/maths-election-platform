@@ -27,7 +27,7 @@ export default function VoterLoginPage() {
     election ? { description: election.description, image: election.logoUrl } : undefined,
   );
   const [loadingElection, setLoadingElection] = useState(true);
-  const [formData, setFormData] = useState({ matricNumber: '', fullName: '', department: '', accessCode: '' });
+  const [formData, setFormData] = useState({ matricNumber: '', fullName: '', department: '', level: '', accessCode: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -84,7 +84,7 @@ export default function VoterLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.matricNumber || !formData.fullName || !formData.department || !imageFile) {
+    if (!formData.matricNumber || !formData.fullName || !formData.department || !formData.level || !imageFile) {
       addNotification('error', 'All fields including an image are required');
       return;
     }
@@ -112,6 +112,7 @@ export default function VoterLoginPage() {
           matricNumber: formData.matricNumber.toLowerCase(),
           fullName: formData.fullName,
           department: formData.department,
+          level: formData.level,
           image: imageUrl,
           ...(formData.accessCode ? { accessCode: formData.accessCode.trim() } : {}),
         }),
@@ -123,6 +124,7 @@ export default function VoterLoginPage() {
         matricNumber: formData.matricNumber.toLowerCase(),
         fullName: formData.fullName,
         department: formData.department,
+        level: formData.level,
         image: imageUrl,
       }));
 
@@ -227,6 +229,21 @@ export default function VoterLoginPage() {
             onChange={(e) => setFormData({ ...formData, department: e.target.value })}
             required
           />
+          <select
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+            value={formData.level}
+            onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+            required
+          >
+            <option value="" disabled>Select Level</option>
+            <option value="100L">100 Level</option>
+            <option value="200L">200 Level</option>
+            <option value="300L">300 Level</option>
+            <option value="400L">400 Level</option>
+            <option value="500L">500 Level</option>
+            <option value="600L">600 Level</option>
+            <option value="Postgraduate">Postgraduate</option>
+          </select>
 
           {election?.hasAccessCode && (
             <div>

@@ -15,7 +15,7 @@ interface Election {
 }
 interface Position { _id: string; name: string; allowMultiple: boolean; maxVotes: number; order: number; }
 interface Candidate { _id: string; positionId: string; name: string; level: string; imageUrl: string; nickname?: string; }
-interface Voter { _id: string; matricNumber: string; fullName: string; department: string; hasVoted: boolean; createdAt: string; }
+interface Voter { _id: string; matricNumber: string; fullName: string; department: string; level?: string; hasVoted: boolean; createdAt: string; }
 interface Stats { voters: number; votes: number; candidates: number; positions: number; turnout: number; }
 
 interface ConfirmState {
@@ -751,7 +751,7 @@ export default function AdminElectionPage() {
                 <div key={v._id} className="px-4 sm:px-5 py-3 flex items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{v.fullName}</p>
-                    <p className="text-xs text-gray-400 truncate">{v.matricNumber} · {v.department}</p>
+                    <p className="text-xs text-gray-400 truncate">{v.matricNumber} · {v.department}{v.level ? ` · ${v.level}` : ''}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span className={`text-xs font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${v.hasVoted ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
