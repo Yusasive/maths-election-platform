@@ -5,13 +5,13 @@ import { MongodbService } from '../../database/mongodb.service';
 export class ResultsService {
   constructor(private readonly mongodb: MongodbService) {}
 
-  async getResults(electionSlug: string) {
+  async getResults(electionSlug: string, skipHiddenCheck = false) {
     const db = this.mongodb.getDb();
 
     const election = await db.collection('elections').findOne({ slug: electionSlug });
     if (!election) throw new NotFoundException('Election not found');
 
-    if (election.showLiveResults === false && election.status === 'active') {
+    if (!skipHiddenCheck && election.showLiveResults === false && election.status === 'active') {
       return {
         resultsHidden: true,
         election: { slug: election.slug, title: election.title, status: election.status },

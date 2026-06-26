@@ -6,7 +6,7 @@ import { usePageTitle } from '../../hooks/usePageTitle';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
 
-type Tab = 'overview' | 'positions' | 'candidates' | 'voters' | 'settings';
+type Tab = 'overview' | 'positions' | 'candidates' | 'voters' | 'results' | 'settings';
 
 interface Election {
   _id: string; slug: string; title: string; description: string; logoUrl?: string;
@@ -17,6 +17,9 @@ interface Position { _id: string; name: string; allowMultiple: boolean; maxVotes
 interface Candidate { _id: string; positionId: string; name: string; level: string; imageUrl: string; nickname?: string; }
 interface Voter { _id: string; matricNumber: string; fullName: string; department: string; level?: string; hasVoted: boolean; createdAt: string; }
 interface Stats { voters: number; votes: number; candidates: number; positions: number; turnout: number; }
+interface CandidateResult { id: string; name: string; level: string; imageUrl: string; votes: number; nickname?: string; }
+interface PositionResult { positionId: string; position: string; allowMultiple: boolean; candidates: CandidateResult[]; }
+interface ElectionResults { totalVoters: number; totalVotesCast: number; results: PositionResult[]; }
 
 interface ConfirmState {
   open: boolean; title: string; message: string; variant: 'danger' | 'warning';
@@ -45,6 +48,8 @@ export default function AdminElectionPage() {
   const [positions, setPositions] = useState<Position[]>([]);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [voters, setVoters] = useState<Voter[]>([]);
+  const [liveResults, setLiveResults] = useState<ElectionResults | null>(null);
+  const [resultsLoading, setResultsLoading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [confirm, setConfirm] = useState<ConfirmState>(defaultConfirm);
 
@@ -121,12 +126,22 @@ export default function AdminElectionPage() {
     } catch { /* optional */ }
   };
 
+  const fetchLiveResults = async () => {
+    setResultsLoading(true);
+    try {
+      const r = await fetch(`${API_URL}/api/elections/${slug}/results/admin`, { headers: { Authorization: `Bearer ${token}` } });
+      if (r.ok) setLiveResults(await r.json());
+    } catch { /* optional */ }
+    finally { setResultsLoading(false); }
+  };
+
   useEffect(() => {
     if (!slug) return;
     Promise.all([fetchAll(), fetchStats()]).finally(() => setLoading(false));
   }, [slug]);
 
   useEffect(() => { if (tab === 'voters') fetchVoters(); }, [tab]);
+  useEffect(() => { if (tab === 'results') fetchLiveResults(); }, [tab]);
 
   // Confirm helper
   const askConfirm = (title: string, message: string, onConfirm: () => void, variant: 'danger' | 'warning' = 'danger') => {
@@ -343,6 +358,7 @@ export default function AdminElectionPage() {
     { key: 'positions', label: 'Positions' },
     { key: 'candidates', label: 'Candidates' },
     { key: 'voters', label: 'Voters' },
+    { key: 'results', label: 'Results' },
     { key: 'settings', label: 'Settings' },
   ];
 
@@ -766,6 +782,102 @@ export default function AdminElectionPage() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Results */}
+      {tab === 'results' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-semibold text-gray-800">Live Results</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Always visible to you regardless of the public live results setting.
+                {election.showLiveResults === false && (
+                  <span className="ml-1 text-amber-600">Results are currently hidden from voters.</span>
+                )}
+              </p>
+            </div>
+            <button
+              onClick={fetchLiveResults}
+              disabled={resultsLoading}
+              className="flex items-center gap-1.5 text-sm border border-gray-200 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition disabled:opacity-50"
+            >
+              <svg className={`w-4 h-4 ${resultsLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              Refresh
+            </button>
+          </div>
+
+          {resultsLoading ? (
+            <div className="flex justify-center py-16">
+              <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+            </div>
+          ) : !liveResults ? (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400 text-sm">
+              No results data yet.
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-3 gap-4">
+                {[
+                  { label: 'Registered Voters', value: liveResults.totalVoters, color: 'text-blue-600' },
+                  { label: 'Votes Cast', value: liveResults.totalVotesCast, color: 'text-green-600' },
+                  { label: 'Turnout', value: liveResults.totalVoters > 0 ? `${Math.round((liveResults.totalVotesCast / liveResults.totalVoters) * 100)}%` : '0%', color: 'text-purple-600' },
+                ].map((s) => (
+                  <div key={s.label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 text-center">
+                    <p className={`text-2xl font-bold ${s.color}`}>{s.value}</p>
+                    <p className="text-xs text-gray-400 mt-1">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {liveResults.results.length === 0 ? (
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-10 text-center text-gray-400 text-sm">
+                  No positions or votes recorded yet.
+                </div>
+              ) : liveResults.results.map((pos) => {
+                const totalForPos = pos.candidates.reduce((sum, c) => sum + c.votes, 0);
+                return (
+                  <div key={pos.positionId} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-semibold text-gray-800">{pos.position}</h4>
+                      <span className="text-xs text-gray-400">{totalForPos} vote{totalForPos !== 1 ? 's' : ''}</span>
+                    </div>
+                    <div className="space-y-3">
+                      {pos.candidates.map((c, i) => {
+                        const pct = totalForPos > 0 ? (c.votes / totalForPos) * 100 : 0;
+                        return (
+                          <div key={c.id} className="flex items-center gap-3">
+                            {i === 0 && totalForPos > 0 && (
+                              <svg className="w-4 h-4 text-yellow-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                              </svg>
+                            )}
+                            {(i > 0 || totalForPos === 0) && <div className="w-4 flex-shrink-0" />}
+                            <img src={c.imageUrl} alt={c.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-100" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between mb-1">
+                                <span className="text-sm font-medium text-gray-800 truncate">
+                                  {c.name}{c.nickname ? ` "${c.nickname}"` : ''}
+                                </span>
+                                <span className="text-sm font-semibold text-gray-600 ml-2 flex-shrink-0">{c.votes} ({pct.toFixed(1)}%)</span>
+                              </div>
+                              <div className="w-full bg-gray-100 rounded-full h-1.5">
+                                <div className="bg-blue-500 h-1.5 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className="text-xs text-gray-400">{c.level}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </>
           )}
         </div>
       )}
